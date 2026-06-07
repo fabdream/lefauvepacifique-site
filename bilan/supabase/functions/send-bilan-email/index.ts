@@ -34,27 +34,30 @@ function ok(extra: Record<string, unknown> = {}) {
 Deno.serve(async (req) => {
   if (req.method !== "POST") return err("POST only", 405)
 
-  // Auth serveur-à-serveur : le bearer doit être exactement la service-role key.
-  const expected = `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""}`
-  if ((req.headers.get("Authorization") ?? "") !== expected) return err("unauthorized", 401)
+  // Auth serveur-à-serveur SANS égalité stricte de clé : le worker peut présenter une clé service-role
+  // valide d'une AUTRE forme que la SUPABASE_SERVICE_ROLE_KEY injectée (nouvelle API key sb_secret vs
+  // JWT legacy = deux chaînes différentes pour le même privilège). On vérifie le PRIVILÈGE, pas la chaîne :
+  // on lit la commande avec le token du caller. Service-role bypass la RLS et voit la row ; anon/publishable
+  // voit 0 ligne (RLS active sans policy) → 401. Le token sert aussi pour storage/signature/update (worker = service-role).
+  const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "").trim()
+  if (!token) return err("unauthorized", 401)
 
   let body: { order_id?: string; subject?: string; html?: string; text?: string }
   try { body = await req.json() } catch { return err("JSON invalide", 400) }
   const orderId = String(body.order_id ?? "").trim()
   if (!orderId) return err("order_id requis", 400)
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  )
+  const supabase = createClient(Deno.env.get("SUPABASE_URL")!, token, {
+    auth: { persistSession: false },
+  })
 
-  // Row autoritaire (destinataire + statut + chemins Storage).
-  const { data: row, error: rowErr } = await supabase
+  // Gate + row autoritaire en un seul appel : maybeSingle → null si la RLS cache tout (caller non service-role) → 401.
+  const { data: row } = await supabase
     .from("bilan_orders")
     .select("id, prenom, email, status, pdf_url, audio_url")
     .eq("id", orderId)
-    .single()
-  if (rowErr || !row) return err("commande introuvable", 404)
+    .maybeSingle()
+  if (!row) return err("unauthorized ou commande introuvable", 401)
 
   if (row.status === "delivered") return ok({ already: true }) // idempotent : déjà envoyé
   if (row.status !== "generated") return err(`statut '${row.status}' (attendu 'generated')`, 409)
