@@ -27,7 +27,9 @@ export default function App() {
   const [draft, setDraft] = useState("")
   const [err, setErr] = useState("")
 
-  const total = QUESTIONS.length
+  // Questions VISIBLES selon les réponses (gère les conditionnelles, ex: cycle affiché seulement si sexe=femme).
+  const visible = QUESTIONS.filter((qq) => (qq.kind === "choice" && qq.showIf) ? answers[qq.showIf.field] === qq.showIf.value : true)
+  const total = visible.length
 
   if (done) {
     return (
@@ -38,14 +40,18 @@ export default function App() {
     )
   }
 
-  const q = QUESTIONS[step]
+  const q = visible[step]
 
   const goNext = (value: string) => {
     const next = { ...answers, [q.id]: value }
+    // Si sexe repasse à non-femme, on purge une réponse cycle devenue caduque (pas envoyée au worker).
+    if (q.id === "sexe" && value !== "femme") delete next.cycle
     setAnswers(next)
     setErr("")
-    if (step + 1 >= total) { setDone(true); return }
-    const nq = QUESTIONS[step + 1]
+    // Recalcule la liste visible avec les NOUVELLES réponses (le choix de sexe ajoute/retire cycle).
+    const nextVisible = QUESTIONS.filter((qq) => (qq.kind === "choice" && qq.showIf) ? next[qq.showIf.field] === qq.showIf.value : true)
+    if (step + 1 >= nextVisible.length) { setDone(true); return }
+    const nq = nextVisible[step + 1]
     setStep(step + 1)
     setDraft(nq.kind !== "choice" ? (next[nq.id] ?? "") : "")
   }
@@ -55,7 +61,8 @@ export default function App() {
     const prev = step - 1
     setStep(prev)
     setErr("")
-    setDraft(QUESTIONS[prev].kind !== "choice" ? (answers[QUESTIONS[prev].id] ?? "") : "")
+    const pq = visible[prev]
+    setDraft(pq.kind !== "choice" ? (answers[pq.id] ?? "") : "")
   }
 
   const submitField = () => {
