@@ -98,6 +98,15 @@ Deno.serve(async (req) => {
     audioSignedUrl ? `\n🔊 Le message du Fauve : ${audioSignedUrl}` : ""
   }\nGarde cet email : tes liens restent valables. · Le Fauve Pacifique · lefauvepacifique.com\n`
 
+  // Placeholders : Oracle place les boutons où il veut dans son template ({{PDF_LINK}}/{{AUDIO_LINK}}, hauts
+  // = jamais clippés par Gmail), on remplace par les URLs signées (download forcé). Fallback zéro-régression :
+  // si pas de token, on append le bloc de liens en bas (comportement précédent).
+  const PDF_TOKEN = "{{PDF_LINK}}", AUDIO_TOKEN = "{{AUDIO_LINK}}"
+  const fillTokens = (s: string) =>
+    s.replaceAll(PDF_TOKEN, pdfSigned.signedUrl).replaceAll(AUDIO_TOKEN, audioSignedUrl ?? "#")
+  const finalHtml = bodyHtml.includes(PDF_TOKEN) ? fillTokens(bodyHtml) : bodyHtml + linksHtml
+  const finalText = bodyText.includes(PDF_TOKEN) ? fillTokens(bodyText) : bodyText + linksText
+
   // Envoi SMTP.
   const port = Number(Deno.env.get("SMTP_PORT") ?? "465")
   const tls = (Deno.env.get("SMTP_TLS") ?? "true") === "true"
@@ -122,8 +131,8 @@ Deno.serve(async (req) => {
       to: row.email,
       subject,
       mimeContent: [
-        { mimeType: 'text/plain; charset="utf-8"', content: b64utf8(bodyText + linksText), transferEncoding: "base64" },
-        { mimeType: 'text/html; charset="utf-8"', content: b64utf8(bodyHtml + linksHtml), transferEncoding: "base64" },
+        { mimeType: 'text/plain; charset="utf-8"', content: b64utf8(finalText), transferEncoding: "base64" },
+        { mimeType: 'text/html; charset="utf-8"', content: b64utf8(finalHtml), transferEncoding: "base64" },
       ],
     })
   } catch (e) {
