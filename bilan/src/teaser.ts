@@ -81,13 +81,16 @@ export function buildTeaser(a: Answers): string {
   return lines.join("\n\n")
 }
 
-// Sommaire du bilan complet, VERROUILLÉ jusqu'au paiement (6 sections + le vocal).
+// Sommaire du bilan complet v2, VERROUILLÉ jusqu'au paiement (8 rubriques + le vocal). Titres alignés 1:1
+// sur le PDF v2 d'Oracle. "Ton terrain"/"Ton diagnostic" restent hors verrouillé = partie gratuite du teaser.
 export const LOCKED_SECTIONS = [
   "D'où ça vient vraiment (le mécanisme)",
   "Tes 3 leviers prioritaires",
-  "Ton protocole sommeil",
+  "Ton plan, dès ce soir",
   "Ton assiette : ce qu'on vire, ce qu'on remplace",
   "Ton mouvement minimum",
   "Ta semaine type, jour par jour",
+  "Tes erreurs à éviter",
+  "À quoi t'attendre, semaine après semaine",
   "🎙️ Le mot du Fauve (message vocal personnalisé)",
 ]
