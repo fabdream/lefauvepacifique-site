@@ -12,6 +12,7 @@
 //   SUPABASE_URL · SUPABASE_SERVICE_ROLE_KEY (auto-injectés par Supabase)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts"
+import { encodeBase64 } from "https://deno.land/std@0.224.0/encoding/base64.ts"
 
 const BUCKET = "bilans"
 const SIGNED_TTL = 60 * 60 * 24 * 365 // 1 an : le client garde l'accès à ses livrables
@@ -110,13 +111,20 @@ Deno.serve(async (req) => {
       auth: { username: Deno.env.get("SMTP_USER")!, password: Deno.env.get("SMTP_PASS")! },
     },
   })
+  // base64 (lossless) au lieu du quoted-printable par défaut de denomailer. Le QP re-wrappe le corps complet
+  // (contenu Oracle + emojis + le lien) en lignes de 76 chars ; sur les longues URLs signées ça corrompt le
+  // lien chez certains clients (Gmail : point du domaine perdu → ERR_NAME_NOT_RESOLVED). base64 = octet pour
+  // octet, le lien arrive intact. mimeContent est résolu tel quel par denomailer (pas de ré-encodage).
+  const b64utf8 = (s: string) => encodeBase64(new TextEncoder().encode(s))
   try {
     await client.send({
       from: `${fromName} <${fromAddr}>`,
       to: row.email,
       subject,
-      content: bodyText + linksText,
-      html: bodyHtml + linksHtml,
+      mimeContent: [
+        { mimeType: 'text/plain; charset="utf-8"', content: b64utf8(bodyText + linksText), transferEncoding: "base64" },
+        { mimeType: 'text/html; charset="utf-8"', content: b64utf8(bodyHtml + linksHtml), transferEncoding: "base64" },
+      ],
     })
   } catch (e) {
     try { await client.close() } catch { /* noop */ }
