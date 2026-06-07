@@ -26,14 +26,14 @@ Deno.serve(async (req) => {
   // Signe les object paths présents (échec de signature → null, ne casse pas le polling).
   let pdf: string | null = null
   let audio: string | null = null
-  // download: force le téléchargement (Content-Disposition: attachment) → ouverture fiable sur mobile
-  // (le rendu PDF inline échoue dans certaines webviews). Même raison que send-bilan-email.
+  // Prévisualisation inline (pas de download forcé) : le navigateur affiche le PDF / lit l'audio ; le viewer
+  // natif offre le téléchargement. (iOS Safari ne lit pas l'ogg → le vocal doit être en mp3.)
   if (data.pdf_url) {
-    const { data: s } = await supabase.storage.from(BUCKET).createSignedUrl(data.pdf_url, TTL, { download: "bilan-du-fauve.pdf" })
+    const { data: s } = await supabase.storage.from(BUCKET).createSignedUrl(data.pdf_url, TTL)
     pdf = s?.signedUrl ?? null
   }
   if (data.audio_url) {
-    const { data: s } = await supabase.storage.from(BUCKET).createSignedUrl(data.audio_url, TTL, { download: "message-du-fauve.ogg" })
+    const { data: s } = await supabase.storage.from(BUCKET).createSignedUrl(data.audio_url, TTL)
     audio = s?.signedUrl ?? null
   }
 
