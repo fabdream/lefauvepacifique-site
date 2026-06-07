@@ -64,11 +64,15 @@ Deno.serve(async (req) => {
   // Liens signés (PDF + vocal). On N'ATTACHE PAS le PDF : encoder un fichier lourd en base64 dans une
   // Edge Function explose la mémoire (WORKER_RESOURCE_LIMIT / HTTP 546). Les liens signés sont légers,
   // fiables, et meilleurs pour la délivrabilité (pièces jointes lourdes = plus de spam). Clic → téléchargement.
-  const { data: pdfSigned } = await supabase.storage.from(BUCKET).createSignedUrl(row.pdf_url, SIGNED_TTL)
+  // download: force Content-Disposition: attachment → le PDF/vocal se TÉLÉCHARGE et s'ouvre dans le viewer
+  // natif. Sans ça, les clients mail mobiles (webview Gmail) échouent à rendre un PDF inline = "ça ouvre pas".
+  const { data: pdfSigned } = await supabase.storage.from(BUCKET)
+    .createSignedUrl(row.pdf_url, SIGNED_TTL, { download: "bilan-du-fauve.pdf" })
   if (!pdfSigned?.signedUrl) return err("signature URL PDF échouée", 502)
   let audioSignedUrl: string | null = null
   if (row.audio_url) {
-    const { data: aud } = await supabase.storage.from(BUCKET).createSignedUrl(row.audio_url, SIGNED_TTL)
+    const { data: aud } = await supabase.storage.from(BUCKET)
+      .createSignedUrl(row.audio_url, SIGNED_TTL, { download: "message-du-fauve.ogg" })
     audioSignedUrl = aud?.signedUrl ?? null
   }
 
