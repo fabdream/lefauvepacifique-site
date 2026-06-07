@@ -1,6 +1,6 @@
 // send-bilan-email : dernier maillon du funnel. Appelé SERVEUR-À-SERVEUR par le worker d'Oracle
 // (jamais par le navigateur) une fois le bilan généré + uploadé dans Storage 'bilans'.
-// Envoie l'email au client (PDF en pièce jointe + liens signés PDF/vocal) via SMTP Infomaniak.
+// Envoie l'email au client (liens signés PDF + vocal, PAS de pièce jointe : base64 d'un PDF lourd = OOM Edge) via SMTP Infomaniak.
 //
 // Sécurité : auth = Bearer <SERVICE_ROLE_KEY> (seul le worker l'a → bloque l'anon). DÉPLOYER --no-verify-jwt.
 // Idempotent + retry-safe : n'envoie que si status='generated' ; succès → 'delivered' ; échec SMTP → reste
@@ -12,11 +12,9 @@
 //   SUPABASE_URL · SUPABASE_SERVICE_ROLE_KEY (auto-injectés par Supabase)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts"
-import { encodeBase64 } from "https://deno.land/std@0.224.0/encoding/base64.ts"
 
 const BUCKET = "bilans"
 const SIGNED_TTL = 60 * 60 * 24 * 365 // 1 an : le client garde l'accès à ses livrables
-const MAX_ATTACH_BYTES = 9_000_000 // au-delà → lien seul (évite un reject SMTP sur pièce jointe lourde)
 
 function err(msg: string, status: number) {
   return new Response(JSON.stringify({ ok: false, error: msg }), {
@@ -63,26 +61,15 @@ Deno.serve(async (req) => {
   if (row.status !== "generated") return err(`statut '${row.status}' (attendu 'generated')`, 409)
   if (!row.pdf_url) return err("pdf_url manquant sur une commande generated", 422)
 
-  // Liens signés (PDF obligatoire, vocal optionnel) + téléchargement du PDF pour pièce jointe.
+  // Liens signés (PDF + vocal). On N'ATTACHE PAS le PDF : encoder un fichier lourd en base64 dans une
+  // Edge Function explose la mémoire (WORKER_RESOURCE_LIMIT / HTTP 546). Les liens signés sont légers,
+  // fiables, et meilleurs pour la délivrabilité (pièces jointes lourdes = plus de spam). Clic → téléchargement.
   const { data: pdfSigned } = await supabase.storage.from(BUCKET).createSignedUrl(row.pdf_url, SIGNED_TTL)
+  if (!pdfSigned?.signedUrl) return err("signature URL PDF échouée", 502)
   let audioSignedUrl: string | null = null
   if (row.audio_url) {
     const { data: aud } = await supabase.storage.from(BUCKET).createSignedUrl(row.audio_url, SIGNED_TTL)
     audioSignedUrl = aud?.signedUrl ?? null
-  }
-
-  // Pièce jointe PDF (sous le seuil de taille).
-  const attachments: { filename: string; contentType: string; encoding: "base64"; content: string }[] = []
-  const { data: pdfBlob, error: dlErr } = await supabase.storage.from(BUCKET).download(row.pdf_url)
-  if (dlErr || !pdfBlob) return err(`download PDF échoué: ${dlErr?.message ?? "vide"}`, 502)
-  const pdfBytes = new Uint8Array(await pdfBlob.arrayBuffer())
-  if (pdfBytes.byteLength <= MAX_ATTACH_BYTES) {
-    attachments.push({
-      filename: "bilan-du-fauve.pdf",
-      contentType: "application/pdf",
-      encoding: "base64",
-      content: encodeBase64(pdfBytes),
-    })
   }
 
   // Contenu : payload Oracle (voix du Fauve) sinon fallback sobre.
@@ -95,17 +82,16 @@ Deno.serve(async (req) => {
   const bodyText = body.text?.trim() ||
     `${prenom ? `${prenom},` : "Bonjour,"}\n\nLe Fauve a observé. Ton bilan personnel est prêt.\nTu le trouveras en pièce jointe (PDF), et tu peux écouter le message du Fauve.\n`
 
-  // Footer liens signés (toujours ajouté : backup si la pièce jointe est filtrée + accès au vocal).
-  const linksHtml = `<hr style="border:none;border-top:1px solid #e5ded5;margin:24px 0"/>
-    <p style="font-size:14px;color:#6b6358">
-      📄 <a href="${pdfSigned?.signedUrl ?? "#"}">Télécharger ton bilan (PDF)</a>${
-        audioSignedUrl ? `<br/>🔊 <a href="${audioSignedUrl}">Écouter le message du Fauve</a>` : ""
-      }
-    </p>
-    <p style="font-size:12px;color:#9a9286">Le Fauve Pacifique · lefauvepacifique.com</p>`
-  const linksText = `\n—\n📄 Ton bilan (PDF) : ${pdfSigned?.signedUrl ?? ""}${
+  // Bloc de téléchargement = livraison PRINCIPALE (liens signés, pas de pièce jointe).
+  const linksHtml = `<div style="margin:28px 0 8px">
+      <a href="${pdfSigned.signedUrl}" style="display:inline-block;background:#8A5A2B;color:#F5EAD7;text-decoration:none;padding:14px 26px;border-radius:4px;font-weight:600;font-family:Helvetica,Arial,sans-serif;font-size:15px">📄 Télécharger ton bilan (PDF)</a>
+    </div>${
+      audioSignedUrl ? `<p style="margin:10px 0 0"><a href="${audioSignedUrl}" style="color:#8A5A2B;font-weight:600;text-decoration:none">🔊 Écouter le message du Fauve</a></p>` : ""
+    }
+    <p style="font-size:12px;color:#9a9286;margin-top:20px">Garde cet email : tes liens restent valables. · Le Fauve Pacifique · lefauvepacifique.com</p>`
+  const linksText = `\n—\n📄 Télécharger ton bilan (PDF) : ${pdfSigned.signedUrl}${
     audioSignedUrl ? `\n🔊 Le message du Fauve : ${audioSignedUrl}` : ""
-  }\nLe Fauve Pacifique · lefauvepacifique.com\n`
+  }\nGarde cet email : tes liens restent valables. · Le Fauve Pacifique · lefauvepacifique.com\n`
 
   // Envoi SMTP.
   const port = Number(Deno.env.get("SMTP_PORT") ?? "465")
@@ -127,7 +113,6 @@ Deno.serve(async (req) => {
       subject,
       content: bodyText + linksText,
       html: bodyHtml + linksHtml,
-      attachments,
     })
   } catch (e) {
     try { await client.close() } catch { /* noop */ }
