@@ -37,7 +37,7 @@ export function createPaymentIntent(order_id: string) {
   return callFn<{ client_secret: string }>("create-payment-intent", { method: "POST", body: JSON.stringify({ order_id }) })
 }
 
-// Polling de l'état (post-paiement) : lead | paid | delivered (+ pdf_url). PII jamais renvoyée.
+// Polling de l'état (post-paiement) : lead | paid | generated | delivered (+ liens signés PDF/vocal). PII jamais renvoyée.
 export function getOrderStatus(order_id: string) {
-  return callFn<{ status: string; pdf_url: string | null }>(`order-status?id=${encodeURIComponent(order_id)}`, { method: "GET" })
+  return callFn<{ status: string; pdf_url: string | null; audio_url: string | null }>(`order-status?id=${encodeURIComponent(order_id)}`, { method: "GET" })
 }

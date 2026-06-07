@@ -245,6 +245,7 @@ function PaymentStep({ onPaid, onBack }: { onPaid: () => void; onBack: () => voi
 function Processing({ orderId }: { orderId: string }) {
   const [status, setStatus] = useState("paid")
   const [pdfUrl, setPdfUrl] = useState<string | null>(null)
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
   const timer = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
@@ -254,6 +255,7 @@ function Processing({ orderId }: { orderId: string }) {
         setStatus(r.status)
         if (r.status === "delivered") {
           setPdfUrl(r.pdf_url)
+          setAudioUrl(r.audio_url)
           if (timer.current) clearInterval(timer.current)
         }
       } catch { /* on retente au prochain tick */ }
@@ -275,6 +277,7 @@ function Processing({ orderId }: { orderId: string }) {
         <>
           <div className="pitch">Ton bilan est prêt 🐺</div>
           {pdfUrl && <a className="btn btn-primary" style={{ width: "100%" }} href={pdfUrl} target="_blank" rel="noreferrer">Ouvrir mon bilan</a>}
+          {audioUrl && <a className="btn btn-ghost" style={{ width: "100%", marginTop: 10 }} href={audioUrl} target="_blank" rel="noreferrer">🔊 Écouter le message du Fauve</a>}
           <div className="reassure">Une copie t'a aussi été envoyée par mail.</div>
         </>
       )}
