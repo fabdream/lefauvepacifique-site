@@ -3,7 +3,10 @@ node_modules/
 .env
 .env.local
 dist/
+_site/
 .next/
 .netlify/
 *.log
 .tmp-screenshots/
+# référence clés publiques (à coller dans les env vars Netlify, pas dans le repo)
+bilan/front-env.txt

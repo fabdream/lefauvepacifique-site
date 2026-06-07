@@ -1,0 +1,18 @@
+# Netlify — monorepo : site statique racine + funnel Vite /bilan.
+# Le site racine (index.html + assets) reste servi tel quel ; le funnel est buildé sous /bilan/.
+
+[build]
+  command = "bash netlify-build.sh"
+  publish = "_site"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Les variables VITE_* (publiques : VITE_SUPABASE_URL / ANON / STRIPE_PUBLISHABLE_KEY / FUNCTIONS_URL)
+# sont à définir dans les ENV VARS du site Netlify (pas ici, pas dans le repo). Valeurs dans bilan/front-env.txt.
+
+# SPA fallback pour le funnel (sans force → les fichiers réels /bilan/assets/* sont servis avant).
+[[redirects]]
+  from = "/bilan/*"
+  to = "/bilan/index.html"
+  status = 200
