@@ -46,6 +46,8 @@ img{max-width:100%;display:block}
 .brand-mark{display:inline-block;width:8px;height:8px;background:var(--accent);border-radius:50%;margin-right:10px;vertical-align:middle;transform:translateY(-2px)}
 .nav-links{display:flex;gap:32px;font-size:13px;color:var(--fg-mute);letter-spacing:0.06em;text-transform:uppercase}
 .nav-links a:hover{color:var(--fg)}
+.nav-links a.nav-cta{color:var(--accent-soft);font-weight:600}
+.nav-links a.nav-cta:hover{color:var(--accent)}
 @media (max-width:760px){.nav-links{display:none}}
 
 /* HERO */
@@ -181,6 +183,16 @@ img{max-width:100%;display:block}
 .disclaimer strong{color:var(--fg-soft);font-weight:500}
 .footer-bottom{font-size:11px;color:var(--fg-faint);letter-spacing:0.16em;text-transform:uppercase;margin-top:24px}
 
+/* BILAN — bulle flottante (entrée vers le funnel /bilan/, toujours visible, surtout sur mobile où la nav est masquée) */
+.bilan-fab{position:fixed;right:22px;bottom:22px;z-index:60;display:inline-flex;align-items:center;gap:10px;padding:15px 22px;background:var(--accent);color:var(--bg);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;border-radius:999px;box-shadow:0 12px 34px rgba(0,0,0,0.45),0 0 0 1px rgba(245,234,215,0.10);transition:transform 220ms ease,background 220ms ease;animation:fabIn 600ms ease 1.1s both}
+.bilan-fab:hover{background:var(--accent-soft);transform:translateY(-3px)}
+.bilan-fab .fab-emoji{font-size:18px;line-height:1}
+.bilan-fab::after{content:"";position:absolute;inset:0;border-radius:999px;animation:fabPulse 3s ease-out infinite;pointer-events:none}
+@keyframes fabIn{from{opacity:0;transform:translateY(16px) scale(0.92)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes fabPulse{0%{box-shadow:0 0 0 0 rgba(198,138,75,0.45)}70%{box-shadow:0 0 0 18px rgba(198,138,75,0)}100%{box-shadow:0 0 0 0 rgba(198,138,75,0)}}
+@media (max-width:480px){.bilan-fab{right:14px;bottom:14px;padding:13px 18px;font-size:10px}}
+@media (prefers-reduced-motion:reduce){.bilan-fab,.bilan-fab::after{animation:none}}
+
 .reveal{opacity:0;transform:translateY(20px);transition:opacity 800ms ease,transform 800ms ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
 </style>
@@ -194,6 +206,7 @@ img{max-width:100%;display:block}
     <a href="#manifeste">Manifeste</a>
     <a href="#produit">Le carnet</a>
     <a href="#voix">Voix</a>
+    <a href="/bilan/" class="nav-cta">Le bilan</a>
     <a href="https://instagram.com/lefauvepacifique">Instagram</a>
   </div>
 </nav>
@@ -382,6 +395,7 @@ img{max-width:100%;display:block}
   <div class="footer-links">
     <a href="https://instagram.com/lefauvepacifique">Instagram</a>
     <a href="#produit">Le carnet</a>
+    <a href="/bilan/">Le bilan</a>
     <a href="#piliers">Les piliers</a>
     <a href="mailto:contact@lefauvepacifique.com">Contact</a>
     <a href="#">Mentions</a>
@@ -392,6 +406,11 @@ img{max-width:100%;display:block}
   </div>
   <div class="footer-bottom">© 2026 Le Fauve Pacifique · Tous droits réservés</div>
 </footer>
+
+<a href="/bilan/" class="bilan-fab" aria-label="Fais ton bilan avec le Fauve">
+  <span class="fab-emoji" aria-hidden="true">🐺</span>
+  <span>Fais ton bilan</span>
+</a>
 
 <script>
 const io=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}});},{rootMargin:'0px 0px -10% 0px'});
