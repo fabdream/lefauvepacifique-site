@@ -10,3 +10,7 @@ _site/
 .tmp-screenshots/
 # référence clés publiques (à coller dans les env vars Netlify, pas dans le repo)
 bilan/front-env.txt
+
+# Vite build cache
+.vite/
+bilan/.vite/
