@@ -1,15 +1,29 @@
 import { useEffect, useRef, useState } from "react"
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js"
-import { QUESTIONS, type Answers } from "./questions"
+import { QUESTIONS, type Answers, type Question } from "./questions"
 import { buildTeaser, LOCKED_SECTIONS } from "./teaser"
 import { hasPaymentConfig, getStripe, createLead, createPaymentIntent, getOrderStatus } from "./payment"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const stripePromise = getStripe()
 
-// Sérialisation des réponses pour le worker : allergies (multi-select stocké en CSV interne) → array de slugs.
+// Une question conditionnelle (choice + showIf) n'est visible que si AU MOINS une de ses conditions matche (OR).
+// Toute autre question est toujours visible.
+function isVisible(qq: Question, a: Answers): boolean {
+  return !(qq.kind === "choice" && qq.showIf) || qq.showIf.some((c) => a[c.field] === c.value)
+}
+
+// Sérialisation des réponses pour le worker :
+//  - STRIP des réponses des questions devenues cachées (ex: retour-arrière qui change l'objectif → données d'axe périmées)
+//  - allergies (multi-select stocké en CSV interne) → array de slugs
 function forApi(a: Answers): Record<string, unknown> {
-  return a.allergies !== undefined ? { ...a, allergies: a.allergies.split(",").filter(Boolean) } : a
+  const visibleIds = new Set(QUESTIONS.filter((qq) => isVisible(qq, a)).map((qq) => qq.id))
+  const out: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(a)) {
+    if (!visibleIds.has(k)) continue
+    out[k] = k === "allergies" ? v.split(",").filter(Boolean) : v
+  }
+  return out
 }
 
 // Thème du Payment Element accordé à l'identité Le Fauve (dark + terracotta).
@@ -33,7 +47,7 @@ export default function App() {
   const [err, setErr] = useState("")
 
   // Questions VISIBLES selon les réponses (gère les conditionnelles, ex: cycle affiché seulement si sexe=femme).
-  const visible = QUESTIONS.filter((qq) => (qq.kind === "choice" && qq.showIf) ? answers[qq.showIf.field] === qq.showIf.value : true)
+  const visible = QUESTIONS.filter((qq) => isVisible(qq, answers))
   const total = visible.length
 
   if (done) {
@@ -54,7 +68,7 @@ export default function App() {
     setAnswers(next)
     setErr("")
     // Recalcule la liste visible avec les NOUVELLES réponses (le choix de sexe ajoute/retire cycle).
-    const nextVisible = QUESTIONS.filter((qq) => (qq.kind === "choice" && qq.showIf) ? next[qq.showIf.field] === qq.showIf.value : true)
+    const nextVisible = QUESTIONS.filter((qq) => isVisible(qq, next))
     if (step + 1 >= nextVisible.length) { setDone(true); return }
     const nq = nextVisible[step + 1]
     setStep(step + 1)

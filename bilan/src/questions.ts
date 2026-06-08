@@ -8,7 +8,7 @@ export type Question =
   | { id: string; kind: "email"; prompt: string; placeholder: string }
   | { id: string; kind: "longtext"; prompt: string; placeholder: string } // texte libre OPTIONNEL (skippable)
   // showIf : question conditionnelle, affichée seulement si answers[field] === value (ex: cycle si sexe=femme).
-  | { id: string; kind: "choice"; prompt: string; choices: Choice[]; showIf?: { field: string; value: string } }
+  | { id: string; kind: "choice"; prompt: string; choices: Choice[]; showIf?: { field: string; value: string }[] } // showIf = array de conditions en OR (affiché si au moins une matche)
   | { id: string; kind: "multichoice"; prompt: string; choices: Choice[]; exclusive?: string } // multi-select ; exclusive = slug qui vide les autres
 
 export const QUESTIONS: Question[] = [
@@ -33,7 +33,7 @@ export const QUESTIONS: Question[] = [
   },
   {
     id: "cycle", kind: "choice", prompt: "Et côté cycle, t'en es où ?",
-    showIf: { field: "sexe", value: "femme" },
+    showIf: [{ field: "sexe", value: "femme" }],
     choices: [
       { value: "regles-difficiles", label: "Règles difficiles" },
       { value: "premenopause", label: "Préménopause" },
@@ -166,6 +166,128 @@ export const QUESTIONS: Question[] = [
       { value: "manger", label: "Manger mieux" },
       { value: "corps", label: "Me sentir bien dans mon corps" },
       { value: "vieillir", label: "Vieillir en forme" },
+    ],
+  },
+
+  // --- Creusage adaptatif (v3.1) : questions d'AXE affichées selon objectif/pese/mouvement/stress (showIf OR).
+  // Placées APRÈS objectif (elles en dépendent). Worker Oracle mappe ces slugs.
+  {
+    id: "coucher", kind: "choice", prompt: "À quelle heure tu te couches, en général ?",
+    showIf: [{ field: "objectif", value: "dormir" }],
+    choices: [
+      { value: "avant-22h", label: "Avant 22h" },
+      { value: "22h-23h", label: "22h - 23h" },
+      { value: "23h-minuit", label: "23h - minuit" },
+      { value: "apres-minuit", label: "Après minuit" },
+    ],
+  },
+  {
+    id: "duree", kind: "choice", prompt: "Tu dors combien d'heures par nuit ?",
+    showIf: [{ field: "objectif", value: "dormir" }],
+    choices: [
+      { value: "moins-5h", label: "Moins de 5h" },
+      { value: "5-6h", label: "5 à 6h" },
+      { value: "6-7h", label: "6 à 7h" },
+      { value: "7h-plus", label: "7h et plus" },
+    ],
+  },
+  {
+    id: "rituel", kind: "choice", prompt: "Juste avant de dormir, c'est plutôt…",
+    showIf: [{ field: "objectif", value: "dormir" }],
+    choices: [
+      { value: "ecran", label: "Les écrans" },
+      { value: "alcool", label: "Un verre d'alcool" },
+      { value: "lecture", label: "Lecture, calme" },
+      { value: "rien", label: "Rien de particulier" },
+    ],
+  },
+  {
+    id: "portions", kind: "choice", prompt: "Tes portions à table, en général ?",
+    showIf: [{ field: "objectif", value: "manger" }, { field: "pese", value: "poids" }],
+    choices: [
+      { value: "petites", label: "Petites" },
+      { value: "normales", label: "Normales" },
+      { value: "copieuses", label: "Copieuses" },
+      { value: "je-me-ressers", label: "Je me ressers souvent" },
+    ],
+  },
+  {
+    id: "grignote-quand", kind: "choice", prompt: "Tu grignotes plutôt quand ?",
+    showIf: [{ field: "objectif", value: "manger" }, { field: "pese", value: "poids" }],
+    choices: [
+      { value: "jamais", label: "Jamais" },
+      { value: "aprem", label: "L'après-midi" },
+      { value: "soir-tele", label: "Le soir devant la télé" },
+      { value: "nuit", label: "La nuit" },
+    ],
+  },
+  {
+    id: "sodas", kind: "choice", prompt: "Sodas, jus sucrés ?",
+    showIf: [{ field: "objectif", value: "manger" }, { field: "pese", value: "poids" }],
+    choices: [
+      { value: "jamais", label: "Jamais" },
+      { value: "parfois", label: "Parfois" },
+      { value: "tous-les-jours", label: "Tous les jours" },
+    ],
+  },
+  {
+    id: "barre-quand", kind: "choice", prompt: "Le coup de barre, c'est plutôt quand ?",
+    showIf: [{ field: "objectif", value: "energie" }, { field: "pese", value: "fatigue" }],
+    choices: [
+      { value: "matin", label: "Le matin" },
+      { value: "apres-dej", label: "Après le déjeuner" },
+      { value: "fin-aprem", label: "En fin d'après-midi" },
+      { value: "toute-journee", label: "Toute la journée" },
+    ],
+  },
+  {
+    id: "recup-weekend", kind: "choice", prompt: "Le week-end, tu récupères ?",
+    showIf: [{ field: "objectif", value: "energie" }, { field: "pese", value: "fatigue" }],
+    choices: [
+      { value: "oui", label: "Oui, ça va mieux" },
+      { value: "un-peu", label: "Un peu" },
+      { value: "jamais", label: "Jamais vraiment" },
+    ],
+  },
+  {
+    id: "douleur-ou", kind: "choice", prompt: "Tes douleurs, c'est où surtout ?",
+    showIf: [{ field: "objectif", value: "bouger" }, { field: "mouvement", value: "douleurs" }],
+    choices: [
+      { value: "dos", label: "Le dos" },
+      { value: "articulations", label: "Les articulations" },
+      { value: "nuque-epaules", label: "Nuque, épaules" },
+      { value: "partout", label: "Un peu partout" },
+    ],
+  },
+  {
+    id: "douleur-quand", kind: "choice", prompt: "Elles arrivent quand ?",
+    showIf: [{ field: "objectif", value: "bouger" }, { field: "mouvement", value: "douleurs" }],
+    choices: [
+      { value: "matin", label: "Le matin, au réveil" },
+      { value: "apres-effort", label: "Après l'effort" },
+      { value: "continu", label: "En continu" },
+      { value: "nuit", label: "La nuit" },
+    ],
+  },
+  {
+    id: "stress-source", kind: "choice", prompt: "Ton stress, ça vient surtout de…",
+    showIf: [{ field: "objectif", value: "corps" }, { field: "objectif", value: "vieillir" }, { field: "stress", value: "pression" }, { field: "stress", value: "a-bout" }],
+    choices: [
+      { value: "travail", label: "Le travail" },
+      { value: "famille", label: "La famille" },
+      { value: "argent", label: "L'argent" },
+      { value: "sante", label: "La santé" },
+      { value: "tout", label: "Un peu tout" },
+    ],
+  },
+  {
+    id: "stress-corps", kind: "choice", prompt: "Ton stress, il se loge où dans ton corps ?",
+    showIf: [{ field: "objectif", value: "corps" }, { field: "objectif", value: "vieillir" }, { field: "stress", value: "pression" }, { field: "stress", value: "a-bout" }],
+    choices: [
+      { value: "sommeil", label: "Le sommeil" },
+      { value: "digestion", label: "La digestion" },
+      { value: "dos-nuque", label: "Le dos, la nuque" },
+      { value: "moral", label: "Le moral" },
     ],
   },
 ]
