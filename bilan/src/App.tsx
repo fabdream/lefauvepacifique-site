@@ -249,10 +249,27 @@ function PaymentStep({ onPaid, onBack }: { onPaid: () => void; onBack: () => voi
   )
 }
 
+// Suivi LIVE post-paiement (voix du Fauve, copy Oracle). Le statut transite paid→processing→generated→delivered
+// (le worker cloud génère en ~2min). Titre + sous-message par étape ; pendant la génération, sous-messages
+// "vivants" en rotation toutes les 8s. Le 🐺 est réservé au delivered.
+const STAGE: Record<string, { title: string; sub: string }> = {
+  paid: { title: "Paiement reçu.", sub: "Le Fauve s'installe pour t'écrire…" },
+  processing: { title: "Le Fauve écrit ton bilan.", sub: "Rien que pour toi, à partir de ce que tu lui as dit. Une à deux minutes, reste là." },
+  generated: { title: "Ton bilan est prêt.", sub: "Il prépare ta version…" },
+}
+const PROCESSING_SUBS = [
+  "Rien que pour toi, à partir de ce que tu lui as dit. Une à deux minutes, reste là.",
+  "Il regarde ta situation, dans le détail.",
+  "Il écrit ton plan, dans l'ordre. Pas 15 trucs, les 3 qui comptent.",
+  "Il enregistre ton message vocal…",
+  "Le bon truc prend un peu de temps.",
+]
+
 function Processing({ orderId }: { orderId: string }) {
   const [status, setStatus] = useState("paid")
   const [pdfUrl, setPdfUrl] = useState<string | null>(null)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [subIdx, setSubIdx] = useState(0)
   const timer = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
@@ -272,22 +289,31 @@ function Processing({ orderId }: { orderId: string }) {
     return () => { if (timer.current) clearInterval(timer.current) }
   }, [orderId])
 
+  // Sous-messages "vivants" pendant la génération (rotation toutes les 8s) → feeling live sur les ~2min.
+  useEffect(() => {
+    if (status !== "processing") return
+    const id = setInterval(() => setSubIdx((i) => (i + 1) % PROCESSING_SUBS.length), 8000)
+    return () => clearInterval(id)
+  }, [status])
+
+  if (status === "delivered") {
+    return (
+      <div className="paywall">
+        <div className="pitch">Ton bilan t'attend. 🐺</div>
+        {pdfUrl && <a className="btn btn-primary" style={{ width: "100%" }} href={pdfUrl} target="_blank" rel="noreferrer">Voir mon bilan (PDF)</a>}
+        {audioUrl && <a className="btn btn-ghost" style={{ width: "100%", marginTop: 10 }} href={audioUrl} target="_blank" rel="noreferrer">Écouter le message du Fauve</a>}
+        <div className="reassure">Lis-le maintenant. On te l'a aussi envoyé par mail.</div>
+      </div>
+    )
+  }
+
+  const stage = STAGE[status] ?? STAGE.processing
+  const sub = status === "processing" ? PROCESSING_SUBS[subIdx] : stage.sub
   return (
     <div className="paywall">
-      {status !== "delivered" ? (
-        <>
-          <div className="price" style={{ fontSize: 40 }}>✓</div>
-          <div className="pitch">Paiement reçu. Le Fauve prépare ton bilan complet, ça arrive…</div>
-          <div className="reassure">Tu peux fermer cette page : tu le recevras aussi par mail.</div>
-        </>
-      ) : (
-        <>
-          <div className="pitch">Ton bilan est prêt 🐺</div>
-          {pdfUrl && <a className="btn btn-primary" style={{ width: "100%" }} href={pdfUrl} target="_blank" rel="noreferrer">Ouvrir mon bilan</a>}
-          {audioUrl && <a className="btn btn-ghost" style={{ width: "100%", marginTop: 10 }} href={audioUrl} target="_blank" rel="noreferrer">🔊 Écouter le message du Fauve</a>}
-          <div className="reassure">Une copie t'a aussi été envoyée par mail.</div>
-        </>
-      )}
+      <div className="spinner" aria-hidden="true" />
+      <div className="pitch">{stage.title}</div>
+      <div className="progress-sub" key={status === "processing" ? subIdx : status}>{sub}</div>
     </div>
   )
 }

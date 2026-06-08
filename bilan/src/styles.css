@@ -122,6 +122,11 @@ body {
 .paywall .pitch { font-family: var(--display); font-style: italic; font-size: 19px; color: var(--fg-soft); margin: 10px 0 22px; }
 .paywall .btn-primary { width: 100%; padding: 20px; font-size: 13px; }
 .paywall .reassure { font-size: 12px; color: var(--fg-faint); margin-top: 14px; letter-spacing: 0.02em; }
+/* Suivi live post-paiement : spinner de génération + sous-message "vivant" en rotation. */
+.paywall .spinner { width: 46px; height: 46px; margin: 6px auto 20px; border-radius: 50%; border: 3px solid rgba(245, 234, 215, 0.14); border-top-color: var(--accent); animation: spin 900ms linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.paywall .progress-sub { font-size: 14px; color: var(--fg-mute); line-height: 1.55; max-width: 32ch; margin: 6px auto 0; min-height: 44px; animation: rise 460ms ease both; }
+@media (prefers-reduced-motion: reduce) { .paywall .spinner { animation-duration: 2.4s; } }
 
 .disclaimer { font-size: 11px; color: var(--fg-faint); text-align: center; line-height: 1.5; padding: 22px 8px 4px; max-width: 44ch; margin: 0 auto; }
 .muted-note { font-size: 12px; color: var(--fg-faint); text-align: center; padding: 8px 0 26px; font-family: var(--sans); }
