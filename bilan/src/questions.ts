@@ -6,8 +6,10 @@ export type Choice = { value: string; label: string }
 export type Question =
   | { id: string; kind: "text"; prompt: string; placeholder: string }
   | { id: string; kind: "email"; prompt: string; placeholder: string }
+  | { id: string; kind: "longtext"; prompt: string; placeholder: string } // texte libre OPTIONNEL (skippable)
   // showIf : question conditionnelle, affichée seulement si answers[field] === value (ex: cycle si sexe=femme).
   | { id: string; kind: "choice"; prompt: string; choices: Choice[]; showIf?: { field: string; value: string } }
+  | { id: string; kind: "multichoice"; prompt: string; choices: Choice[]; exclusive?: string } // multi-select ; exclusive = slug qui vide les autres
 
 export const QUESTIONS: Question[] = [
   { id: "prenom", kind: "text", prompt: "On commence. C'est quoi ton prénom ?", placeholder: "Ton prénom" },
@@ -112,6 +114,25 @@ export const QUESTIONS: Question[] = [
     ],
   },
   {
+    id: "allergies", kind: "multichoice", prompt: "Des allergies ou intolérances ?",
+    exclusive: "aucune",
+    choices: [
+      { value: "aucune", label: "Aucune" },
+      { value: "lactose", label: "Lactose" },
+      { value: "gluten", label: "Gluten" },
+      { value: "fruits-a-coque", label: "Fruits à coque" },
+      { value: "oeufs", label: "Œufs" },
+      { value: "autres", label: "Autres" },
+    ],
+  },
+  {
+    id: "traitement", kind: "choice", prompt: "Tu prends un traitement médical régulier ?",
+    choices: [
+      { value: "non", label: "Non" },
+      { value: "oui", label: "Oui" },
+    ],
+  },
+  {
     id: "depuis", kind: "choice", prompt: "Depuis quand tu te sens comme ça ?",
     choices: [
       { value: "semaines", label: "Quelques semaines" },
@@ -130,6 +151,11 @@ export const QUESTIONS: Question[] = [
       { value: "douleurs", label: "Mes douleurs" },
       { value: "sais-pas", label: "Je sais pas par où commencer" },
     ],
+  },
+  {
+    id: "galere", kind: "longtext",
+    prompt: "Avant que le Fauve écrive : dis-lui en quelques mots ta vraie galère, ou un détail sur toi.",
+    placeholder: "Ex : je dors mal depuis mon déménagement, je grignote le soir devant les écrans… (optionnel, mais ça l'aide à viser juste)",
   },
   {
     id: "objectif", kind: "choice", prompt: "Ton objectif numéro 1 ?",

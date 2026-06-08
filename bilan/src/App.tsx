@@ -7,6 +7,11 @@ import { hasPaymentConfig, getStripe, createLead, createPaymentIntent, getOrderS
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const stripePromise = getStripe()
 
+// Sérialisation des réponses pour le worker : allergies (multi-select stocké en CSV interne) → array de slugs.
+function forApi(a: Answers): Record<string, unknown> {
+  return a.allergies !== undefined ? { ...a, allergies: a.allergies.split(",").filter(Boolean) } : a
+}
+
 // Thème du Payment Element accordé à l'identité Le Fauve (dark + terracotta).
 const stripeAppearance = {
   theme: "night" as const,
@@ -72,6 +77,20 @@ export default function App() {
     goNext(v)
   }
 
+  // Multi-select : toggle un slug dans answers[q.id] (CSV interne). `exclusive` (ex: "aucune") vide les autres
+  // quand coché ; cocher un autre retire l'exclusif. On n'avance pas (l'utilisateur valide via "Continuer").
+  const toggleMulti = (slug: string, exclusive?: string) => {
+    setAnswers((prev) => {
+      const set = new Set((prev[q.id] ?? "").split(",").filter(Boolean))
+      if (set.has(slug)) set.delete(slug)
+      else {
+        if (exclusive) { if (slug === exclusive) set.clear(); else set.delete(exclusive) }
+        set.add(slug)
+      }
+      return { ...prev, [q.id]: Array.from(set).join(",") }
+    })
+  }
+
   return (
     <div className="app">
       <div className="brand"><span className="brand-mark" />Le Fauve Pacifique</div>
@@ -94,6 +113,37 @@ export default function App() {
                   {c.label}
                 </button>
               ))}
+            </div>
+          ) : q.kind === "multichoice" ? (
+            <div className="field">
+              <div className="choices">
+                {q.choices.map((c) => (
+                  <button
+                    key={c.value}
+                    className={(answers[q.id] ?? "").split(",").includes(c.value) ? "choice sel" : "choice"}
+                    onClick={() => toggleMulti(c.value, q.exclusive)}
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+              <button className="btn btn-primary" style={{ marginTop: 4 }} onClick={() => goNext(answers[q.id] ?? "")}>
+                Continuer <span className="arrow">→</span>
+              </button>
+            </div>
+          ) : q.kind === "longtext" ? (
+            <div className="field">
+              <textarea
+                placeholder={q.placeholder}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                rows={4}
+                autoFocus
+              />
+              <button className="btn btn-primary" onClick={() => goNext(draft.trim())} disabled={!draft.trim()}>
+                Continuer <span className="arrow">→</span>
+              </button>
+              <div className="muted-note" onClick={() => goNext("")} style={{ cursor: "pointer" }}>Passer cette question</div>
             </div>
           ) : (
             <div className="field">
@@ -141,7 +191,7 @@ function Teaser({ answers, onRestart }: { answers: Answers; onRestart: () => voi
   useEffect(() => {
     if (!hasPaymentConfig) return
     let cancelled = false
-    createLead({ prenom: answers.prenom ?? "", email: answers.email ?? "", answers, teaser_text: teaserText })
+    createLead({ prenom: answers.prenom ?? "", email: answers.email ?? "", answers: forApi(answers), teaser_text: teaserText })
       .then((r) => { if (!cancelled) setOrderId(r.order_id) })
       .catch(() => { /* silencieux : le teaser reste affiché, on retentera au paiement */ })
     return () => { cancelled = true }
@@ -152,7 +202,7 @@ function Teaser({ answers, onRestart }: { answers: Answers; onRestart: () => voi
     setBusy(true); setErr("")
     try {
       let oid = orderId
-      if (!oid) { oid = (await createLead({ prenom: answers.prenom ?? "", email: answers.email ?? "", answers, teaser_text: teaserText })).order_id; setOrderId(oid) }
+      if (!oid) { oid = (await createLead({ prenom: answers.prenom ?? "", email: answers.email ?? "", answers: forApi(answers), teaser_text: teaserText })).order_id; setOrderId(oid) }
       const { client_secret } = await createPaymentIntent(oid)
       setClientSecret(client_secret)
       setPhase("pay")

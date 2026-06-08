@@ -2,7 +2,6 @@
 // create-payment-intent, order-status). Tout est conditionné à la présence des clés : sans config,
 // `hasPaymentConfig` = false → l'app garde le placeholder (le démo marche sans backend).
 import { loadStripe, type Stripe } from "@stripe/stripe-js"
-import type { Answers } from "./questions"
 
 const PK = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined
 const FUNCTIONS_URL = import.meta.env.VITE_FUNCTIONS_URL as string | undefined
@@ -28,7 +27,7 @@ async function callFn<T>(name: string, init: RequestInit): Promise<T> {
 }
 
 // Capture le lead (email + réponses + teaser) AVANT paiement → renvoie l'order_id.
-export function createLead(input: { prenom: string; email: string; answers: Answers; teaser_text: string }) {
+export function createLead(input: { prenom: string; email: string; answers: Record<string, unknown>; teaser_text: string }) {
   return callFn<{ order_id: string }>("create-lead", { method: "POST", body: JSON.stringify(input) })
 }
 
