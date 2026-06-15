@@ -4,9 +4,9 @@ import Stripe from "https://esm.sh/stripe@17?target=deno"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { json, preflight } from "../_shared/cors.ts"
 
-// 29.- : à passer en EUR si Fabio le décide (changer AMOUNT_CENTS + CURRENCY ici + le label front).
-const AMOUNT_CENTS = 2900
-const CURRENCY = "chf"
+// 5 EUR (décision Fabio 15/06/2026). Prix SERVEUR-autoritaire (changer AMOUNT_CENTS + CURRENCY ici + le label front).
+const AMOUNT_CENTS = 500
+const CURRENCY = "eur"
 
 Deno.serve(async (req) => {
   const pre = preflight(req)

@@ -7,6 +7,28 @@ import { hasPaymentConfig, getStripe, createLead, createPaymentIntent, getOrderS
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const stripePromise = getStripe()
 
+// Suggestion de typo de DOMAINE email (gmial→gmail, hotmial→hotmail...). Levenshtein ≤2 sur le domaine.
+// Le cas typo du DÉBUT (vansssa) est attrapé par la confirmation visuelle, pas ici.
+const COMMON_EMAIL_DOMAINS = ["gmail.com", "hotmail.com", "hotmail.fr", "outlook.com", "outlook.fr", "yahoo.com", "yahoo.fr", "icloud.com", "live.fr", "orange.fr", "wanadoo.fr", "free.fr", "sfr.fr", "laposte.net", "bluewin.ch", "gmx.ch", "protonmail.com"]
+function levenshtein(a: string, b: string): number {
+  const m = a.length, n = b.length
+  const d: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0))
+  for (let i = 0; i <= m; i++) d[i][0] = i
+  for (let j = 0; j <= n; j++) d[0][j] = j
+  for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1))
+  return d[m][n]
+}
+function suggestEmail(email: string): string | null {
+  const at = email.lastIndexOf("@")
+  if (at < 1) return null
+  const domain = email.slice(at + 1).toLowerCase()
+  if (!domain || COMMON_EMAIL_DOMAINS.includes(domain)) return null
+  let best: string | null = null, bestD = 3
+  for (const dom of COMMON_EMAIL_DOMAINS) { const dist = levenshtein(domain, dom); if (dist > 0 && dist < bestD) { bestD = dist; best = dom } }
+  return best ? email.slice(0, at + 1) + best : null
+}
+
 // Une question conditionnelle (choice + showIf) n'est visible que si AU MOINS une de ses conditions matche (OR).
 // Toute autre question est toujours visible.
 function isVisible(qq: Question, a: Answers): boolean {
@@ -54,6 +76,7 @@ export default function App() {
     return (
       <Teaser
         answers={answers}
+        onEmailChange={(email) => setAnswers((a) => ({ ...a, email }))}
         onRestart={() => { setDone(false); setStep(0); setAnswers({}); setDraft(""); setErr("") }}
       />
     )
@@ -190,9 +213,16 @@ export default function App() {
 
 type Phase = "preview" | "pay" | "processing"
 
-function Teaser({ answers, onRestart }: { answers: Answers; onRestart: () => void }) {
+function Teaser({ answers, onEmailChange, onRestart }: { answers: Answers; onEmailChange: (email: string) => void; onRestart: () => void }) {
   const teaserText = buildTeaser(answers)
   const paragraphs = teaserText.split("\n\n")
+
+  // Confirmation visuelle de l'email avant paiement (anti-typo, protège le revenue). Édition inline → la correction
+  // remonte dans answers.email → createLead repart avec le bon email (l'order pointe sur la bonne adresse).
+  const [editingEmail, setEditingEmail] = useState(false)
+  const [emailDraft, setEmailDraft] = useState(answers.email ?? "")
+  const [emailErr, setEmailErr] = useState("")
+  const emailSuggestion = suggestEmail(answers.email ?? "")
 
   const [phase, setPhase] = useState<Phase>("preview")
   const [orderId, setOrderId] = useState<string | null>(null)
@@ -250,9 +280,48 @@ function Teaser({ answers, onRestart }: { answers: Answers; onRestart: () => voi
             </div>
 
             <div className="paywall">
-              <div className="price">29.-<small> CHF</small></div>
+              <div className="price">5.-<small> EUR</small></div>
               <div className="pitch">Ton bilan complet, personnalisé, livré par mail. Plus le mot du Fauve en vocal.</div>
-              <button className="btn btn-primary" onClick={() => void unlock()} disabled={busy}>
+
+              <div className="email-confirm" style={{ margin: "16px 0 4px", textAlign: "left", fontSize: 14, lineHeight: 1.55 }}>
+                {editingEmail ? (
+                  <>
+                    <input
+                      type="email" inputMode="email" autoComplete="email" autoCapitalize="off" spellCheck={false}
+                      value={emailDraft}
+                      onChange={(e) => { setEmailDraft(e.target.value); setEmailErr("") }}
+                      placeholder="ton@email.com"
+                      aria-label="Corrige ton email"
+                      style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", borderRadius: 2, border: "1px solid #C68A4B", background: "#2A1E14", color: "#F5EAD7", fontSize: 16 }}
+                    />
+                    <button
+                      className="btn btn-primary" style={{ width: "100%", marginTop: 8 }}
+                      onClick={() => { const v = emailDraft.trim(); if (!EMAIL_RE.test(v)) { setEmailErr("Il me faut un email valide."); return } onEmailChange(v); setEditingEmail(false) }}
+                    >Valider cet email</button>
+                    {emailErr && <div className="reassure" style={{ color: "#E0794B" }}>{emailErr}</div>}
+                  </>
+                ) : (
+                  <>
+                    <span style={{ color: "#D9A66E" }}>📩 On envoie ton bilan à&nbsp;:</span>{" "}
+                    <strong style={{ color: "#F5EAD7", wordBreak: "break-all" }}>{answers.email}</strong>{" "}
+                    <button
+                      onClick={() => { setEmailDraft(answers.email ?? ""); setEmailErr(""); setEditingEmail(true) }}
+                      style={{ background: "none", border: "none", color: "#C68A4B", textDecoration: "underline", cursor: "pointer", padding: 0, font: "inherit" }}
+                    >modifier</button>
+                    {emailSuggestion && (
+                      <div style={{ marginTop: 6, color: "#E0794B" }}>
+                        Tu voulais dire{" "}
+                        <button
+                          onClick={() => onEmailChange(emailSuggestion)}
+                          style={{ background: "none", border: "none", color: "#E0794B", textDecoration: "underline", cursor: "pointer", padding: 0, font: "inherit", fontWeight: 600 }}
+                        >{emailSuggestion}</button>&nbsp;?
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+
+              <button className="btn btn-primary" onClick={() => void unlock()} disabled={busy || editingEmail}>
                 {busy ? "…" : "Débloque ton bilan complet"}
               </button>
               {err && <div className="reassure" style={{ color: "#E0794B" }}>{err}</div>}
@@ -302,10 +371,10 @@ function PaymentStep({ onPaid, onBack }: { onPaid: () => void; onBack: () => voi
 
   return (
     <div className="paywall">
-      <div className="teaser-label" style={{ marginBottom: 16 }}>Paiement · 29.- CHF</div>
+      <div className="teaser-label" style={{ marginBottom: 16 }}>Paiement · 5.- EUR</div>
       <PaymentElement />
       <button className="btn btn-primary" style={{ width: "100%", marginTop: 18 }} onClick={() => void pay()} disabled={busy || !stripe}>
-        {busy ? "Paiement…" : "Payer 29 CHF"}
+        {busy ? "Paiement…" : "Payer 5 EUR"}
       </button>
       {err && <div className="reassure" style={{ color: "#E0794B" }}>{err}</div>}
       <div className="muted-note" onClick={onBack} style={{ cursor: "pointer" }}>← retour</div>
@@ -341,11 +410,11 @@ function Processing({ orderId }: { orderId: string }) {
       try {
         const r = await getOrderStatus(orderId)
         setStatus(r.status)
-        if (r.status === "delivered") {
-          setPdfUrl(r.pdf_url)
-          setAudioUrl(r.audio_url)
-          if (timer.current) clearInterval(timer.current)
-        }
+        if (r.pdf_url) setPdfUrl(r.pdf_url)
+        if (r.audio_url) setAudioUrl(r.audio_url)
+        // Dès que le bilan est PRÊT (pdf dispo), on stoppe le polling — MÊME si l'email n'est pas encore 'delivered'.
+        // → le client récupère toujours son bilan ici, indépendamment de l'email (filet anti-email-foireux).
+        if (r.pdf_url && timer.current) clearInterval(timer.current)
       } catch { /* on retente au prochain tick */ }
     }
     void poll()
@@ -360,13 +429,19 @@ function Processing({ orderId }: { orderId: string }) {
     return () => clearInterval(id)
   }, [status])
 
-  if (status === "delivered") {
+  // Bilan PRÊT (pdf dispo) → on montre les boutons de téléchargement, que l'email soit parti ('delivered') ou
+  // pas encore/échoué ('generated'). Le client repart TOUJOURS avec son bilan depuis cette page.
+  if (pdfUrl) {
     return (
       <div className="paywall">
         <div className="pitch">Ton bilan t'attend. 🐺</div>
-        {pdfUrl && <a className="btn btn-primary" style={{ width: "100%" }} href={pdfUrl} target="_blank" rel="noreferrer">Voir mon bilan (PDF)</a>}
-        {audioUrl && <a className="btn btn-ghost" style={{ width: "100%", marginTop: 10 }} href={audioUrl} target="_blank" rel="noreferrer">Écouter le message du Fauve</a>}
-        <div className="reassure">Lis-le maintenant. On te l'a aussi envoyé par mail.</div>
+        <a className="btn btn-primary" style={{ width: "100%", marginTop: 6 }} href={pdfUrl} target="_blank" rel="noreferrer">📄 Télécharge ton bilan (PDF)</a>
+        {audioUrl && <a className="btn btn-ghost" style={{ width: "100%", marginTop: 10 }} href={audioUrl} target="_blank" rel="noreferrer">🎧 Écoute le message du Fauve</a>}
+        <div className="reassure">
+          {status === "delivered"
+            ? "Télécharge-le maintenant, et garde-le. On te l'a aussi envoyé par mail."
+            : "Télécharge-le maintenant, et garde-le. (Ton email arrive aussi.)"}
+        </div>
       </div>
     )
   }
