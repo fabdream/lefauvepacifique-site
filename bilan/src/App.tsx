@@ -403,6 +403,7 @@ function Processing({ orderId }: { orderId: string }) {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
   const [subIdx, setSubIdx] = useState(0)
+  const [pct, setPct] = useState(6)
   const timer = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
@@ -429,6 +430,15 @@ function Processing({ orderId }: { orderId: string }) {
     return () => clearInterval(id)
   }, [status])
 
+  // Barre de progression : avance vite au début puis ralentit en approchant 95% (ease asymptotique).
+  // Honnête — elle ne touche jamais 100% tant que le PDF n'est pas prêt ; à ce moment on bascule sur l'écran
+  // de téléchargement. But : rassurer "ça avance, t'inquiète, ton bilan arrive" pendant les ~2min.
+  useEffect(() => {
+    if (pdfUrl) return
+    const id = setInterval(() => setPct((p) => (p < 95 ? p + Math.max(0.4, (95 - p) * 0.035) : p)), 700)
+    return () => clearInterval(id)
+  }, [pdfUrl])
+
   // Bilan PRÊT (pdf dispo) → on montre les boutons de téléchargement, que l'email soit parti ('delivered') ou
   // pas encore/échoué ('generated'). Le client repart TOUJOURS avec son bilan depuis cette page.
   if (pdfUrl) {
@@ -453,6 +463,10 @@ function Processing({ orderId }: { orderId: string }) {
       <div className="spinner" aria-hidden="true" />
       <div className="pitch">{stage.title}</div>
       <div className="progress-sub" key={status === "processing" ? subIdx : status}>{sub}</div>
+      <div className="progress" style={{ maxWidth: "32ch", height: 6, borderRadius: 6, margin: "20px auto 0" }} role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
+        <i style={{ width: `${pct}%` }} />
+      </div>
+      <div className="reassure" style={{ marginTop: 8 }}>{Math.round(pct)}% · ne ferme pas cette page</div>
     </div>
   )
 }

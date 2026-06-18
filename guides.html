@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1A130C">
+<title>Guides gratuits · Le Fauve Pacifique</title>
+<meta name="description" content="Les guides gratuits du Fauve Pacifique. Des savoirs concrets sur le sommeil, l'alimentation, le corps. Laisse ton email, le guide arrive dans ta boîte.">
+<meta property="og:title" content="Guides gratuits · Le Fauve Pacifique">
+<meta property="og:description" content="Des savoirs concrets, gratuits. Sommeil, os solides, et plus. Reçois-les par mail.">
+<meta property="og:image" content="/assets/apothicaire-wide.jpg">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1A130C; --bg-soft:#221710; --bg-card:#2A1E14; --bg-cream:#F5EAD7;
+  --fg:#F5EAD7; --fg-soft:rgba(245,234,215,0.78); --fg-mute:rgba(245,234,215,0.58); --fg-faint:rgba(245,234,215,0.32);
+  --accent:#C68A4B; --accent-deep:#8A5A2B; --accent-soft:#D9A66E;
+  --line:rgba(245,234,215,0.12);
+  --display:"Cormorant Garamond","Times New Roman",Georgia,serif;
+  --sans:"Inter",system-ui,-apple-system,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-weight:400;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.container{max-width:1100px;margin:0 auto;padding:0 28px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:17px 30px;font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;border-radius:0;cursor:pointer;border:0;transition:transform 200ms ease,background 200ms ease,color 200ms ease}
+.btn-primary{background:var(--accent);color:var(--bg)}
+.btn-primary:hover{background:var(--accent-soft);transform:translateY(-2px)}
+.btn .arrow{font-family:var(--display);font-style:italic;font-size:18px;line-height:1}
+.section-label{font-size:11px;letter-spacing:0.4em;text-transform:uppercase;color:var(--accent);margin-bottom:22px;display:inline-flex;align-items:center;gap:14px;font-weight:600}
+.section-label::before{content:"";display:inline-block;width:32px;height:1px;background:var(--accent)}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px 28px;background:rgba(26,19,12,0.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.brand{font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:0.02em;display:flex;align-items:center;gap:10px}
+.brand-mark{width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block}
+.nav-links{display:flex;align-items:center;gap:26px;font-size:13px;letter-spacing:0.04em;color:var(--fg-soft)}
+.nav-links a:hover{color:var(--fg)}
+.nav-cta{color:var(--accent)!important;font-weight:600}
+@media(max-width:640px){.nav-links a:not(.nav-cta){display:none}}
+
+/* HERO */
+.ghero{padding:90px 0 54px;text-align:center;border-bottom:1px solid var(--line);background:linear-gradient(to bottom,var(--bg-soft),var(--bg))}
+.ghero h1{font-family:var(--display);font-size:clamp(44px,7vw,82px);line-height:0.98;margin:0 0 20px;font-weight:500}
+.ghero h1 em{font-style:italic;color:var(--accent)}
+.ghero p{color:var(--fg-soft);font-size:19px;max-width:48ch;margin:0 auto;line-height:1.6}
+
+/* GUIDE CARDS */
+.guides{padding:64px 0 96px}
+.guide-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:32px;max-width:880px;margin:0 auto}
+@media(max-width:720px){.guide-grid{gap:16px}}
+@media(max-width:440px){.guide-grid{gap:12px}.gc-num{width:32px;height:32px;font-size:13px;top:10px}.gc-body{padding:4px 12px 22px}.gc-eyebrow{font-size:9px;letter-spacing:0.16em}.guide-card h2{font-size:21px}.gc-lead{display:none}.guide-card .btn{padding:13px 10px;font-size:9.5px;letter-spacing:0.06em;white-space:normal;line-height:1.3}.g-input{height:46px;font-size:14px}.gc-note{font-size:10px}}
+.guide-card{background:var(--bg-card);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform 260ms ease,border-color 260ms ease,box-shadow 260ms ease}
+.guide-card:hover{transform:translateY(-4px);border-color:rgba(198,138,75,0.4);box-shadow:0 24px 60px -28px rgba(0,0,0,0.7)}
+
+.gc-media{position:relative;aspect-ratio:1/1.12;overflow:hidden}
+.gc-book{position:absolute;inset:0;background-size:cover;background-position:center 42%;transition:transform 500ms ease}
+.guide-card:hover .gc-book{transform:scale(1.035)}
+.gc-media::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(125% 78% at 50% 40%,transparent 44%,var(--bg-card) 100%)}
+.gc-num{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:2;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:17px;font-weight:600;color:var(--accent-soft);background:rgba(26,19,12,0.55);border:1px solid rgba(198,138,75,0.5);backdrop-filter:blur(4px)}
+
+.gc-body{padding:6px 28px 32px;display:flex;flex-direction:column;flex:1;text-align:center}
+.gc-eyebrow{font-size:10.5px;letter-spacing:0.3em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px}
+.guide-card h2{font-family:var(--display);font-size:clamp(27px,3vw,34px);line-height:1.02;margin:0 0 12px;font-weight:500}
+.gc-lead{color:var(--fg-soft);font-size:14.5px;line-height:1.6;margin:0 auto 22px;max-width:34ch}
+.gc-foot{margin-top:auto}
+.gc-cta .btn{width:100%}
+
+/* form (révélé au clic) */
+.g-form{display:flex;gap:10px;flex-direction:column;align-items:stretch;animation:fade 280ms ease}
+.g-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.g-input{width:100%;height:52px;padding:0 18px;background:rgba(245,234,215,0.06);border:1px solid var(--line);color:var(--fg);font-family:var(--sans);font-size:15px;text-align:center}
+.g-input::placeholder{color:var(--fg-faint)}
+.g-input:focus{outline:none;border-color:var(--accent)}
+.g-form .btn{width:100%}
+.g-success{animation:fade 280ms ease}
+.g-success .msg{font-family:var(--display);font-style:italic;color:var(--accent-soft);font-size:19px;margin:0 0 14px;line-height:1.4}
+.g-success .btn{width:100%}
+.gc-note{margin-top:14px;font-size:11.5px;color:var(--fg-mute);line-height:1.5}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* BILAN — bulle flottante (cross-sell vers le funnel /bilan/ depuis les guides gratuits) */
+.bilan-fab{position:fixed;right:22px;bottom:22px;z-index:60;display:inline-flex;align-items:center;gap:10px;padding:15px 22px;background:var(--accent);color:var(--bg);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;border-radius:999px;box-shadow:0 12px 34px rgba(0,0,0,0.45),0 0 0 1px rgba(245,234,215,0.10);transition:transform 220ms ease,background 220ms ease;animation:fabIn 600ms ease 1.1s both}
+.bilan-fab:hover{background:var(--accent-soft);transform:translateY(-3px)}
+.bilan-fab .fab-emoji{font-size:18px;line-height:1}
+.bilan-fab::after{content:"";position:absolute;inset:0;border-radius:999px;animation:fabPulse 3s ease-out infinite;pointer-events:none}
+@keyframes fabIn{from{opacity:0;transform:translateY(16px) scale(0.92)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes fabPulse{0%{box-shadow:0 0 0 0 rgba(198,138,75,0.45)}70%{box-shadow:0 0 0 18px rgba(198,138,75,0)}100%{box-shadow:0 0 0 0 rgba(198,138,75,0)}}
+@media (max-width:480px){.bilan-fab{right:14px;bottom:14px;padding:13px 18px;font-size:10px}}
+@media (prefers-reduced-motion:reduce){.bilan-fab,.bilan-fab::after{animation:none}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="brand" href="/"><span class="brand-mark"></span>Le Fauve Pacifique</a>
+  <div class="nav-links">
+    <a href="/">Accueil</a>
+    <a href="/#piliers">Les piliers</a>
+    <a href="/bilan/" class="nav-cta">Le bilan</a>
+    <a href="https://instagram.com/lefauvepacifique" target="_blank" rel="noopener">Instagram</a>
+  </div>
+</nav>
+
+<header class="ghero">
+  <div class="container">
+    <div class="section-label" style="justify-content:center">Gratuit</div>
+    <h1>Les guides <em>du Fauve.</em></h1>
+    <p>Des savoirs concrets, gratuits. Laisse ton email, le guide arrive dans ta boîte. Brut, direct, à lire ce soir.</p>
+  </div>
+</header>
+
+<section class="guides">
+  <div class="container">
+    <div class="guide-grid">
+
+      <article class="guide-card">
+        <div class="gc-media">
+          <div class="gc-num">01</div>
+          <div class="gc-book" style="background-image:url('/assets/guide-sommeil-mockup.jpg')"></div>
+        </div>
+        <div class="gc-body">
+          <div class="gc-eyebrow">Sommeil</div>
+          <h2>4 plantes pour le sommeil</h2>
+          <p class="gc-lead">Quatre plantes que les anciens des Alpes utilisaient pour dormir : comment les préparer, quand les prendre, ce qu'il faut éviter.</p>
+          <div class="gc-foot">
+            <div class="gc-cta">
+              <button type="button" class="btn btn-primary gc-open">Télécharger Gratuitement</button>
+            </div>
+            <form class="g-form" data-source="guide-sommeil-4-plantes" data-pdf="/assets/guide-4-plantes-sommeil.pdf" hidden novalidate>
+              <input type="email" name="email" required autocomplete="email" placeholder="ton email" aria-label="Ton email" class="g-input">
+              <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" class="g-hp">
+              <button type="submit" class="btn btn-primary">Recevoir le guide <span class="arrow">→</span></button>
+            </form>
+            <div class="g-success" hidden>
+              <p class="msg">Merci. Ton guide arrive dans ta boîte mail 🌿</p>
+              <a class="btn btn-primary" href="/assets/guide-4-plantes-sommeil.pdf" target="_blank" rel="noopener" download>Télécharger maintenant <span class="arrow">→</span></a>
+            </div>
+            <p class="gc-note">Gratuit. En complément du soin médical, jamais à la place. Ton email reste entre nous.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="guide-card">
+        <div class="gc-media">
+          <div class="gc-num">02</div>
+          <div class="gc-book" style="background-image:url('/assets/guide-os-mockup.jpg')"></div>
+        </div>
+        <div class="gc-body">
+          <div class="gc-eyebrow">Corps · Nutrition</div>
+          <h2>Des os solides</h2>
+          <p class="gc-lead">Pourquoi le lait ne suffit pas, et les vrais leviers pour garder des os solides en vieillissant.</p>
+          <div class="gc-foot">
+            <div class="gc-cta">
+              <button type="button" class="btn btn-primary gc-open">Télécharger Gratuitement</button>
+            </div>
+            <form class="g-form" data-source="guide-os-aliments" data-pdf="/assets/guide-os-aliments.pdf" hidden novalidate>
+              <input type="email" name="email" required autocomplete="email" placeholder="ton email" aria-label="Ton email" class="g-input">
+              <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" class="g-hp">
+              <button type="submit" class="btn btn-primary">Recevoir le guide <span class="arrow">→</span></button>
+            </form>
+            <div class="g-success" hidden>
+              <p class="msg">Merci. Ton guide arrive dans ta boîte mail 🌿</p>
+              <a class="btn btn-primary" href="/assets/guide-os-aliments.pdf" target="_blank" rel="noopener" download>Télécharger maintenant <span class="arrow">→</span></a>
+            </div>
+            <p class="gc-note">Gratuit. En complément du soin médical, jamais à la place. Ton email reste entre nous.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="guide-card">
+        <div class="gc-media">
+          <div class="gc-num">03</div>
+          <div class="gc-book" style="background-image:url('/assets/guide-fruits-mockup.jpg')"></div>
+        </div>
+        <div class="gc-body">
+          <div class="gc-eyebrow">Corps · Nutrition</div>
+          <h2>Fruits propres</h2>
+          <p class="gc-lead">Quels fruits concentrent le plus de pesticides, et la vraie méthode pour les enlever, sans tout acheter bio.</p>
+          <div class="gc-foot">
+            <div class="gc-cta">
+              <button type="button" class="btn btn-primary gc-open">Télécharger Gratuitement</button>
+            </div>
+            <form class="g-form" data-source="guide-fruits-pesticides" data-pdf="/assets/guide-fruits-pesticides.pdf" hidden novalidate>
+              <input type="email" name="email" required autocomplete="email" placeholder="ton email" aria-label="Ton email" class="g-input">
+              <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" class="g-hp">
+              <button type="submit" class="btn btn-primary">Recevoir le guide <span class="arrow">→</span></button>
+            </form>
+            <div class="g-success" hidden>
+              <p class="msg">Merci. Ton guide arrive dans ta boîte mail 🌿</p>
+              <a class="btn btn-primary" href="/assets/guide-fruits-pesticides.pdf" target="_blank" rel="noopener" download>Télécharger maintenant <span class="arrow">→</span></a>
+            </div>
+            <p class="gc-note">Gratuit. En complément du soin médical, jamais à la place. Ton email reste entre nous.</p>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<footer class="footer" style="padding:70px 28px 40px;background:var(--bg);border-top:1px solid var(--line);text-align:center">
+  <a class="brand" href="/" style="justify-content:center;font-size:30px;margin-bottom:14px;display:flex"><span class="brand-mark"></span>Le Fauve Pacifique</a>
+  <div style="font-family:var(--display);font-style:italic;color:var(--accent-soft);font-size:19px;margin-bottom:30px">Le retour aux racines.</div>
+  <div class="footer-links" style="display:flex;justify-content:center;gap:28px;flex-wrap:wrap;font-size:11px;color:var(--fg-mute);letter-spacing:0.16em;text-transform:uppercase;margin-bottom:30px;font-weight:500">
+    <a href="https://instagram.com/lefauvepacifique" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://www.facebook.com/lefauvepacifique" target="_blank" rel="noopener">Facebook</a>
+    <a href="https://www.tiktok.com/@lefauvepacifique" target="_blank" rel="noopener">TikTok</a>
+    <a href="/">Accueil</a>
+    <a href="/bilan/">Le bilan</a>
+    <a href="mailto:contact@lefauvepacifique.com">Contact</a>
+  </div>
+  <div style="max-width:64ch;margin:0 auto 22px;font-size:13px;color:var(--fg-mute);line-height:1.7;padding:22px 28px;border:1px solid var(--line)">
+    <strong style="color:var(--fg-soft);font-weight:500">Le Fauve Pacifique est un personnage IA pour la réflexion.</strong> Pas un avis professionnel. Les pratiques, recettes et observations partagées ici sont des outils <strong style="color:var(--fg-soft);font-weight:500">en complément</strong> du soin médical, jamais à la place. Si tu souffres physiquement ou psychiquement, consulte un professionnel de santé.
+  </div>
+  <div style="font-size:11px;color:var(--fg-faint);letter-spacing:0.16em;text-transform:uppercase;margin-top:22px">© 2026 Le Fauve Pacifique · Tous droits réservés</div>
+</footer>
+
+<a href="/bilan/" class="bilan-fab" aria-label="Fais ton bilan avec le Fauve">
+  <span class="fab-emoji" aria-hidden="true">🐺</span>
+  <span>Fais ton bilan</span>
+</a>
+
+<script>
+// Guides : bouton "Télécharger Gratuitement" -> révèle le champ email -> create-lead (par source) -> Oracle envoie le guide par mail.
+// Clé anon injectée au build (placeholder). Robustesse : on révèle le téléchargement même si le POST échoue.
+(function(){
+  var SUPA_FN="https://qyaohsredwcaqohlyrru.supabase.co/functions/v1/create-lead";
+  var ANON="__SUPABASE_ANON_KEY__";
+  var EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // 1) ouvrir le formulaire au clic sur le bouton de la carte
+  document.querySelectorAll('.gc-open').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var foot=btn.closest('.gc-foot');
+      var cta=btn.closest('.gc-cta');
+      var form=foot.querySelector('.g-form');
+      if(cta)cta.hidden=true;
+      if(form){form.hidden=false; var inp=form.querySelector('input[type=email]'); if(inp)inp.focus();}
+    });
+  });
+  // 2) soumission du formulaire
+  document.querySelectorAll('.g-form').forEach(function(form){
+    form.addEventListener('submit',function(e){
+      e.preventDefault();
+      var emailEl=form.querySelector('input[type=email]');
+      var email=(emailEl.value||"").trim();
+      var hp=(form.querySelector('.g-hp')||{}).value||"";
+      if(!EMAIL_RE.test(email)){emailEl.focus();return;}
+      var src=form.getAttribute('data-source');
+      var btn=form.querySelector('button'); if(btn)btn.disabled=true;
+      var foot=form.closest('.gc-foot');
+      var reveal=function(){
+        form.hidden=true;
+        var ok=foot.querySelector('.g-success'); if(ok)ok.hidden=false;
+      };
+      if(hp || ANON.indexOf("__")===0){reveal();return;}
+      fetch(SUPA_FN,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+ANON,'apikey':ANON},body:JSON.stringify({email:email,answers:{source:src}})}).catch(function(){}).finally(reveal);
+    });
+  });
+})();
+</script>
+</body>
+</html>
