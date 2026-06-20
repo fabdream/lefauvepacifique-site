@@ -243,8 +243,8 @@ function Teaser({ answers, onEmailChange, onRestart }: { answers: Answers; onEma
     return () => { cancelled = true }
   }, [answers, teaserText])
 
-  // Auto-scroll « téléprompteur » au 1er affichage du teaser : après ~1,7s, défilement LENT et CONTINU
-  // vers le bas (rythme lisible ~80px/s, rAF time-based = ultra fluide), pour révéler tout le bilan
+  // Auto-scroll « téléprompteur » au 1er affichage du teaser : après ~3s, défilement LENT et CONTINU
+  // vers le bas (rythme posé ~48px/s, rAF time-based = ultra fluide), pour révéler tout le bilan
   // verrouillé sous le diagnostic. S'arrête au bas OU au 1er geste manuel (wheel/touch/clavier = intention
   // réelle, pas le scroll programmatique). UNE fois, skip si prefers-reduced-motion.
   useEffect(() => {
@@ -253,7 +253,7 @@ function Teaser({ answers, onEmailChange, onRestart }: { answers: Answers; onEma
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return
     nudgedRef.current = true
 
-    const SPEED = 80 // px/seconde — rythme téléprompteur lisible
+    const SPEED = 48 // px/seconde — rythme téléprompteur posé (réglage Fabio)
     let cancelled = false
     let raf = 0
     let startTimer = 0
@@ -285,7 +285,7 @@ function Teaser({ answers, onEmailChange, onRestart }: { answers: Answers; onEma
         raf = requestAnimationFrame(step)
       }
       raf = requestAnimationFrame(step)
-    }, 1700)
+    }, 3000)
 
     return cleanup
   }, [phase])
