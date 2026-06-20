@@ -230,6 +230,7 @@ function Teaser({ answers, onEmailChange, onRestart }: { answers: Answers; onEma
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState("")
   const [placeholder, setPlaceholder] = useState(false) // sans config paiement : juste l'état "bientôt"
+  const paywallRef = useRef<HTMLDivElement>(null) // cible du CTA sticky (scroll vers l'offre payante)
 
   // Capture du lead dès l'affichage du teaser (email + réponses + teaser), AVANT paiement.
   useEffect(() => {
@@ -269,19 +270,30 @@ function Teaser({ answers, onEmailChange, onRestart }: { answers: Answers; onEma
 
         {phase === "preview" && (
           <>
-            <div className="locked-head"><span className="section-label">Ton bilan complet</span></div>
+            <div className="handoff">
+              <p>Ça, c'est ce qui cloche. Maintenant, le plan pour en sortir. Écrit pour toi, pas pour tout le monde.</p>
+              <span className="handoff-arrow" aria-hidden="true">↓</span>
+            </div>
+
+            <div className="locked-head">
+              <h2 className="locked-title">Ton bilan complet</h2>
+              <p className="locked-sub">9 sections détaillées + le vocal du Fauve, écrites pour ta situation.</p>
+            </div>
             <div className="locked-list">
               {LOCKED_SECTIONS.map((s, i) => (
                 <div className="locked-item" key={i}>
                   <span className="lock">🔒</span>
-                  <span className="txt">{s}</span>
+                  <span className="lk-text">
+                    <span className="lk-title">{s.title}</span>
+                    <span className="lk-sub">{s.sub}</span>
+                  </span>
                 </div>
               ))}
             </div>
 
-            <div className="paywall">
+            <div className="paywall" ref={paywallRef}>
               <div className="price">5.-<small> EUR</small></div>
-              <div className="pitch">Ton bilan complet, personnalisé, livré par mail. Plus le mot du Fauve en vocal.</div>
+              <div className="pitch">Ton bilan complet : ton plan personnalisé, écrit pour ta situation, livré par mail. Plus un message vocal où je te parle directement. Pas un PDF générique. Le tien.</div>
 
               <div className="email-confirm" style={{ margin: "16px 0 4px", textAlign: "left", fontSize: 14, lineHeight: 1.55 }}>
                 {editingEmail ? (
@@ -350,6 +362,17 @@ function Teaser({ answers, onEmailChange, onRestart }: { answers: Answers; onEma
           <div className="muted-note" onClick={onRestart} style={{ cursor: "pointer" }}>↺ recommencer le test</div>
         )}
       </div>
+
+      {/* CTA collant : signale l'offre payante pendant tout le teaser (les gens partaient sans scroller). */}
+      {phase === "preview" && (
+        <button
+          type="button"
+          className="sticky-cta"
+          onClick={() => paywallRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+        >
+          Débloque ton bilan complet <span className="sticky-cta-price">5€</span>
+        </button>
+      )}
     </div>
   )
 }

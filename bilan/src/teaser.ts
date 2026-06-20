@@ -81,16 +81,17 @@ export function buildTeaser(a: Answers): string {
   return lines.join("\n\n")
 }
 
-// Sommaire du bilan complet v2, VERROUILLÉ jusqu'au paiement (8 rubriques + le vocal). Titres alignés 1:1
-// sur le PDF v2 d'Oracle. "Ton terrain"/"Ton diagnostic" restent hors verrouillé = partie gratuite du teaser.
-export const LOCKED_SECTIONS = [
-  "D'où ça vient vraiment (le mécanisme)",
-  "Tes 3 leviers prioritaires",
-  "Ton plan, dès ce soir",
-  "Ton assiette : ce qu'on vire, ce qu'on remplace",
-  "Ton mouvement minimum",
-  "Ta semaine type, jour par jour",
-  "Tes erreurs à éviter",
-  "À quoi t'attendre, semaine après semaine",
-  "🎙️ Le mot du Fauve (message vocal personnalisé)",
+// Sommaire du bilan complet v2, VERROUILLÉ jusqu'au paiement (8 rubriques + le vocal). Titre + sous-ligne
+// (copy v2 Oracle : on enrichit pour que les gens RÉALISENT ce qu'ils débloquent, pas une liste de titres nus).
+// "Ton terrain"/"Ton diagnostic" restent hors verrouillé = partie gratuite du teaser.
+export const LOCKED_SECTIONS: { title: string; sub: string }[] = [
+  { title: "D'où ça vient vraiment", sub: "La cause, pas le symptôme. Le mécanisme dans ton cas précis." },
+  { title: "Tes 3 leviers prioritaires", sub: "Pas 15 trucs. Les 3 qui changent tout, et par lequel commencer." },
+  { title: "Ton plan, dès ce soir", sub: "La première chose à faire en rentrant. Concrète, simple." },
+  { title: "Ton assiette", sub: "Ce qu'on vire, ce qu'on remplace, sans te prendre la tête." },
+  { title: "Ton mouvement minimum", sub: "Le strict nécessaire, adapté à ton corps." },
+  { title: "Ta semaine type, jour par jour", sub: "Un vrai planning, pas des conseils en l'air." },
+  { title: "Tes erreurs à éviter", sub: "Les pièges où presque tout le monde se plante." },
+  { title: "À quoi t'attendre, semaine après semaine", sub: "Pour tenir, et voir que ça bouge." },
+  { title: "🎙️ Le mot du Fauve", sub: "Ma voix, deux minutes, rien que pour toi, sur ta situation." },
 ]
