@@ -45,6 +45,11 @@ function forApi(a: Answers): Record<string, unknown> {
     if (!visibleIds.has(k)) continue
     out[k] = k === "allergies" ? v.split(",").filter(Boolean) : v
   }
+  // Texte libre « Autres » des allergies : pas un id de question (donc hors visibleIds), on l'ajoute
+  // explicitement quand « autres » est coché → le worker bilan peut éviter pile cet aliment.
+  if (visibleIds.has("allergies") && (a.allergies ?? "").split(",").includes("autres") && a.allergies_autre?.trim()) {
+    out.allergies_autre = a.allergies_autre.trim()
+  }
   return out
 }
 
@@ -124,7 +129,10 @@ export default function App() {
         if (exclusive) { if (slug === exclusive) set.clear(); else set.delete(exclusive) }
         set.add(slug)
       }
-      return { ...prev, [q.id]: Array.from(set).join(",") }
+      const next = { ...prev, [q.id]: Array.from(set).join(",") }
+      // allergies : si « Autres » n'est plus coché, on vide le texte libre associé.
+      if (q.id === "allergies" && !set.has("autres")) delete next.allergies_autre
+      return next
     })
   }
 
@@ -164,6 +172,16 @@ export default function App() {
                   </button>
                 ))}
               </div>
+              {q.id === "allergies" && (answers[q.id] ?? "").split(",").includes("autres") && (
+                <input
+                  type="text"
+                  placeholder="précise : kiwi, crustacés…"
+                  value={answers.allergies_autre ?? ""}
+                  onChange={(e) => setAnswers((prev) => ({ ...prev, allergies_autre: e.target.value }))}
+                  aria-label="Précise ton allergie"
+                  style={{ marginTop: 4 }}
+                />
+              )}
               <button className="btn btn-primary" style={{ marginTop: 4 }} onClick={() => goNext(answers[q.id] ?? "")}>
                 Continuer <span className="arrow">→</span>
               </button>
