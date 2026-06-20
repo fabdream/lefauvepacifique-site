@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Le Fauve · démo bouton</title>
+<style>
+  :root {
+    --bg: #16110b;
+    --bg-soft: #1f1810;
+    --amber: #d99a4e;
+    --amber-bright: #f0b860;
+    --amber-deep: #b9772f;
+    --ink: #1a130c;
+    --muted: rgba(245, 235, 220, 0.55);
+    --label: rgba(245, 235, 220, 0.85);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body {
+    background: radial-gradient(120% 80% at 50% -10%, #241a10 0%, var(--bg) 55%, #100b06 100%);
+    color: #f5ebdc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    padding: 28px 20px 60px;
+  }
+  h1 {
+    font-size: 20px; font-weight: 700; letter-spacing: .2px; text-align: center;
+    margin: 6px 0 4px;
+  }
+  .sub { text-align: center; color: var(--muted); font-size: 13px; margin: 0 0 26px; }
+
+  .card {
+    background: var(--bg-soft);
+    border: 1px solid rgba(217, 154, 78, 0.14);
+    border-radius: 18px;
+    padding: 26px 18px 30px;
+    margin: 0 auto 22px;
+    max-width: 460px;
+  }
+  .card .tag {
+    display: inline-block; font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase;
+    color: var(--amber); margin-bottom: 4px; font-weight: 700;
+  }
+  .card .name { font-size: 16px; font-weight: 700; margin: 0 0 18px; }
+  .card.pick { border-color: rgba(240, 184, 96, 0.55); box-shadow: 0 0 0 1px rgba(240,184,96,.18); }
+  .card.pick .tag::after { content: "  ·  ton choix"; color: var(--muted); font-weight: 500; letter-spacing: .4px; text-transform: none; }
+
+  /* base button shared */
+  .btn {
+    position: relative;
+    width: 100%;
+    border: none;
+    border-radius: 14px;
+    padding: 17px 20px;
+    font-size: 16px; font-weight: 800; letter-spacing: .2px;
+    color: var(--ink);
+    background: linear-gradient(180deg, var(--amber-bright) 0%, var(--amber-deep) 100%);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .btn .price {
+    font-size: 13px; font-weight: 800; color: var(--ink);
+    background: rgba(26,19,12,0.16); border-radius: 999px; padding: 4px 11px;
+  }
+
+  /* === A — contour qui respire (le choix) === */
+  .breathe-wrap { position: relative; border-radius: 16px; padding: 2px; }
+  .breathe-wrap::before {
+    content: ""; position: absolute; inset: 0; border-radius: 16px;
+    border: 2px solid var(--amber-bright);
+    box-shadow: 0 0 0 0 rgba(240,184,96,0);
+    animation: breathe 2.6s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: .45; box-shadow: 0 0 6px 0 rgba(240,184,96,.10); }
+    50%      { opacity: 1;   box-shadow: 0 0 16px 3px rgba(240,184,96,.42); }
+  }
+
+  /* === B — plein, zéro anim === */
+  .solid-wrap .btn { box-shadow: 0 10px 26px -10px rgba(0,0,0,.7); }
+
+  /* === C — léger battement (scale) === */
+  .beat-wrap .btn {
+    box-shadow: 0 0 18px 1px rgba(240,184,96,.22);
+    animation: beat 2.4s ease-in-out infinite;
+    transform-origin: center;
+  }
+  @keyframes beat {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.025); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .breathe-wrap::before { animation: none; opacity: .8; box-shadow: 0 0 10px 1px rgba(240,184,96,.3); }
+    .beat-wrap .btn { animation: none; }
+  }
+
+  .hint { text-align:center; color: var(--muted); font-size: 12px; margin-top: 30px; line-height:1.5; }
+</style>
+</head>
+<body>
+  <h1>Bouton « Débloque ton bilan »</h1>
+  <p class="sub">3 anims isolées, sans le reste de la page. Choisis celle qui te plaît.</p>
+
+  <div class="card pick">
+    <span class="tag">A · contour qui respire</span>
+    <p class="name">Le bord ambré s'allume et s'éteint doucement. Pas de balayage.</p>
+    <div class="breathe-wrap">
+      <button class="btn">Débloque ton bilan complet <span class="price">5€</span></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">B · plein, zéro anim</span>
+    <p class="name">Bouton solide, ombre douce. Sobre, jamais cheap.</p>
+    <div class="solid-wrap">
+      <button class="btn">Débloque ton bilan complet <span class="price">5€</span></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">C · léger battement</span>
+    <p class="name">Le bouton grossit/rétrécit très légèrement en boucle, glow fixe.</p>
+    <div class="beat-wrap">
+      <button class="btn">Débloque ton bilan complet <span class="price">5€</span></button>
+    </div>
+  </div>
+
+  <p class="hint">Dis-moi : A, B ou C.<br>(et on l'applique direct sur le vrai paywall)</p>
+</body>
+</html>
