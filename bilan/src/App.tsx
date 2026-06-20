@@ -243,22 +243,23 @@ function Teaser({ answers, onEmailChange, onRestart }: { answers: Answers; onEma
     return () => { cancelled = true }
   }, [answers, teaserText])
 
-  // Auto-scroll « teasing » au 1er affichage du teaser : nudge DOUX (descend ~220px puis remonte) pour
-  // montrer qu'il y a une suite verrouillée sous le diagnostic. Animation maison rAF + easeInOutCubic
-  // (le scroll natif smooth saccadait). UNE fois, annulé au 1er input user (wheel/touch/clavier, pas le
-  // scroll programmatique), skip si prefers-reduced-motion. Cleanup rAF + timeouts + listeners au démontage.
+  // Auto-scroll « téléprompteur » au 1er affichage du teaser : après ~1,7s, défilement LENT et CONTINU
+  // vers le bas (rythme lisible ~80px/s, rAF time-based = ultra fluide), pour révéler tout le bilan
+  // verrouillé sous le diagnostic. S'arrête au bas OU au 1er geste manuel (wheel/touch/clavier = intention
+  // réelle, pas le scroll programmatique). UNE fois, skip si prefers-reduced-motion.
   useEffect(() => {
     if (phase !== "preview" || nudgedRef.current) return
     if (typeof window === "undefined") return
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return
     nudgedRef.current = true
 
+    const SPEED = 80 // px/seconde — rythme téléprompteur lisible
     let cancelled = false
     let raf = 0
-    const timeouts: number[] = []
+    let startTimer = 0
     const cleanup = () => {
       cancelAnimationFrame(raf)
-      timeouts.forEach(clearTimeout)
+      clearTimeout(startTimer)
       window.removeEventListener("wheel", onInput)
       window.removeEventListener("touchstart", onInput)
       window.removeEventListener("keydown", onInput)
@@ -268,30 +269,23 @@ function Teaser({ answers, onEmailChange, onRestart }: { answers: Answers; onEma
     window.addEventListener("touchstart", onInput, { passive: true })
     window.addEventListener("keydown", onInput)
 
-    const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
-    const animate = (to: number, duration: number, done?: () => void) => {
-      const start = window.scrollY
-      const delta = to - start
-      let startTs = 0
+    startTimer = window.setTimeout(() => {
+      if (cancelled) return
+      let pos = window.scrollY
+      let lastTs = 0
       const step = (ts: number) => {
         if (cancelled) return
-        if (!startTs) startTs = ts
-        const t = Math.min(1, (ts - startTs) / duration)
-        window.scrollTo(0, start + delta * ease(t))
-        if (t < 1) raf = requestAnimationFrame(step)
-        else done?.()
+        if (lastTs) {
+          pos += SPEED * ((ts - lastTs) / 1000)
+          const max = document.documentElement.scrollHeight - window.innerHeight
+          window.scrollTo(0, Math.min(pos, max))
+          if (pos >= max) { cleanup(); return } // bas atteint → stop
+        }
+        lastTs = ts
+        raf = requestAnimationFrame(step)
       }
       raf = requestAnimationFrame(step)
-    }
-
-    timeouts.push(
-      window.setTimeout(() => {
-        if (cancelled) return
-        animate(220, 1000, () => {
-          timeouts.push(window.setTimeout(() => { if (!cancelled) animate(0, 1000, cleanup) }, 700))
-        })
-      }, 650),
-    )
+    }, 1700)
 
     return cleanup
   }, [phase])
