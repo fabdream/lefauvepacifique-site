@@ -88,7 +88,7 @@ export const LOCKED_SECTIONS: { title: string; sub: string }[] = [
   { title: "D'où ça vient vraiment", sub: "La cause, pas le symptôme. Le mécanisme dans ton cas précis." },
   { title: "Tes 3 leviers prioritaires", sub: "Pas 15 trucs. Les 3 qui changent tout, et par lequel commencer." },
   { title: "Ton plan, dès ce soir", sub: "La première chose à faire en rentrant. Concrète, simple." },
-  { title: "Ton assiette", sub: "Ce qu'on vire, ce qu'on remplace, sans te prendre la tête." },
+  { title: "Ton assiette", sub: "Ce qui te nourrit vraiment, ce qui te freine, et comment l'ajuster à ton objectif." },
   { title: "Ton mouvement minimum", sub: "Le strict nécessaire, adapté à ton corps." },
   { title: "Ta semaine type, jour par jour", sub: "Un vrai planning, pas des conseils en l'air." },
   { title: "Tes erreurs à éviter", sub: "Les pièges où presque tout le monde se plante." },

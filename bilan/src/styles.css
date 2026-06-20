@@ -100,7 +100,7 @@ body {
 
 /* --- Écran TEASER --- */
 /* padding-bottom large : laisse la place au CTA collant (fixed) en mode preview, sans masquer le contenu. */
-.teaser { padding: 28px 0 calc(96px + env(safe-area-inset-bottom)); animation: rise 520ms cubic-bezier(.2,.7,.2,1) both; }
+.teaser { padding: 28px 0 calc(112px + env(safe-area-inset-bottom)); animation: rise 520ms cubic-bezier(.2,.7,.2,1) both; }
 .teaser-label { font-size: 11px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--accent-soft); font-weight: 600; margin-bottom: 18px; }
 .diagnostic p { font-family: var(--display); font-size: clamp(20px, 4.6vw, 27px); line-height: 1.4; color: #FAEFD9; margin: 0 0 18px; }
 .diagnostic p:first-child { font-style: italic; color: var(--accent-soft); }
@@ -142,7 +142,8 @@ body {
 /* Phrase de bascule : requalifie le gratuit en « constat », annonce le plan payant + flèche. */
 .handoff { text-align: center; margin: 8px 0 26px; }
 .handoff p { font-family: var(--display); font-style: italic; font-size: clamp(18px, 4.4vw, 22px); color: var(--accent-soft); line-height: 1.4; margin: 0 0 8px; }
-.handoff-arrow { display: inline-block; color: var(--accent); font-size: 22px; animation: bob 1.8s ease-in-out infinite; }
+.handoff p.handoff-scroll { font-family: var(--sans); font-style: normal; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-mute); margin: 4px 0 6px; }
+.handoff-arrow { display: inline-block; color: var(--accent); font-size: 26px; animation: bob 1.8s ease-in-out infinite; }
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 @media (prefers-reduced-motion: reduce) { .handoff-arrow { animation: none; } }
 
@@ -155,7 +156,7 @@ body {
    Centrage par left/right + margin:auto (PAS translateX) : l'animation `rise` finit sur `transform:none`
    (fill-mode both) et écrasait un translateX de centrage → le bouton débordait à droite. Là c'est robuste. */
 .sticky-cta {
-  position: fixed; left: 18px; right: 18px; bottom: calc(14px + env(safe-area-inset-bottom));
+  position: fixed; left: 18px; right: 18px; bottom: calc(24px + env(safe-area-inset-bottom));
   margin: 0 auto; max-width: 560px; z-index: 40;
   display: flex; align-items: center; justify-content: center; gap: 10px;
   padding: 16px 22px; border: 0; border-radius: 4px; cursor: pointer;

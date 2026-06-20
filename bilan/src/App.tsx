@@ -272,6 +272,7 @@ function Teaser({ answers, onEmailChange, onRestart }: { answers: Answers; onEma
           <>
             <div className="handoff">
               <p>Ça, c'est ce qui cloche. Maintenant, le plan pour en sortir. Écrit pour toi, pas pour tout le monde.</p>
+              <p className="handoff-scroll">Fais défiler, voilà tout ce que tu débloques</p>
               <span className="handoff-arrow" aria-hidden="true">↓</span>
             </div>
 
