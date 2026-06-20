@@ -93,5 +93,6 @@ export const LOCKED_SECTIONS: { title: string; sub: string }[] = [
   { title: "Ta semaine type, jour par jour", sub: "Un vrai planning, pas des conseils en l'air." },
   { title: "Tes erreurs à éviter", sub: "Les pièges où presque tout le monde se plante." },
   { title: "À quoi t'attendre, semaine après semaine", sub: "Pour tenir, et voir que ça bouge." },
-  { title: "🎙️ Le mot du Fauve", sub: "Ma voix, deux minutes, rien que pour toi, sur ta situation." },
+  { title: "Tes alliés naturels", sub: "Les plantes et compléments qui t'aident vraiment, et comment les prendre." },
+  { title: "🎙️ Le mot du Fauve", sub: "Ma voix, rien que pour toi, sur ta situation." },
 ]
