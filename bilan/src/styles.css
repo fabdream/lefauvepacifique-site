@@ -159,17 +159,27 @@ body {
   position: fixed; left: 18px; right: 18px; bottom: calc(24px + env(safe-area-inset-bottom));
   margin: 0 auto; max-width: 560px; z-index: 40;
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  padding: 16px 22px; border: 0; border-radius: 4px; cursor: pointer;
+  padding: 16px 22px; border: 1px solid rgba(217,166,110,0.35); border-radius: 4px; cursor: pointer;
   background: var(--accent); color: #1A130C;
   font-family: var(--sans); font-size: 14px; font-weight: 700; letter-spacing: 0.01em;
   box-shadow: 0 8px 30px rgba(0,0,0,0.45);
-  /* entrée (1x) + halo chaud qui pulse TRÈS lentement et discrètement (premium, pas clignotant). */
-  animation: rise 420ms cubic-bezier(.2,.7,.2,1) both, ctaGlow 3.8s ease-in-out 800ms infinite;
+  isolation: isolate; /* contexte d'empilement pour le contour ::before */
+  animation: rise 420ms cubic-bezier(.2,.7,.2,1) both;
 }
+/* Contour lumineux qui FAIT LE TOUR du bouton en continu (running border light) — visible + premium.
+   Une lumière ambrée tourne via un conic-gradient animé (@property). Fallback si @property absent :
+   gradient statique = accent lumineux fixe (pas cassé). Coupé sous prefers-reduced-motion. */
+.sticky-cta::before {
+  content: ""; position: absolute; inset: -3px; border-radius: 6px; z-index: -1; pointer-events: none;
+  background: conic-gradient(from var(--cta-angle, 0deg), transparent 0deg 200deg, #F5C88C 278deg, #FFE6BC 312deg, #D9A66E 340deg, transparent 360deg);
+  filter: blur(1px);
+  animation: ctaSpin 3.2s linear infinite;
+}
+@property --cta-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+@keyframes ctaSpin { to { --cta-angle: 360deg; } }
 .sticky-cta:active { transform: scale(0.99); }
 .sticky-cta-price { background: rgba(26,19,12,0.18); border-radius: 999px; padding: 3px 10px; font-weight: 800; }
-@keyframes ctaGlow {
-  0%, 100% { box-shadow: 0 8px 30px rgba(0,0,0,0.45), 0 0 0 rgba(217,166,110,0); }
-  50% { box-shadow: 0 8px 30px rgba(0,0,0,0.45), 0 0 20px rgba(217,166,110,0.5); }
+@media (prefers-reduced-motion: reduce) {
+  .sticky-cta { animation: none; }
+  .sticky-cta::before { animation: none; }
 }
-@media (prefers-reduced-motion: reduce) { .sticky-cta { animation: none; } }
