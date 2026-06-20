@@ -231,6 +231,7 @@ function Teaser({ answers, onEmailChange, onRestart }: { answers: Answers; onEma
   const [err, setErr] = useState("")
   const [placeholder, setPlaceholder] = useState(false) // sans config paiement : juste l'état "bientôt"
   const paywallRef = useRef<HTMLDivElement>(null) // cible du CTA sticky (scroll vers l'offre payante)
+  const nudgedRef = useRef(false) // auto-scroll teasing : une seule fois
 
   // Capture du lead dès l'affichage du teaser (email + réponses + teaser), AVANT paiement.
   useEffect(() => {
@@ -241,6 +242,30 @@ function Teaser({ answers, onEmailChange, onRestart }: { answers: Answers; onEma
       .catch(() => { /* silencieux : le teaser reste affiché, on retentera au paiement */ })
     return () => { cancelled = true }
   }, [answers, teaserText])
+
+  // Auto-scroll « teasing » au 1er affichage du teaser : un nudge doux (descend ~220px puis remonte)
+  // pour montrer qu'il y a une suite verrouillée sous le diagnostic. UNE fois, annulé dès que l'user
+  // touche/scrolle (wheel/touch/clavier = intention réelle, pas le scroll programmatique), skip si reduced-motion.
+  useEffect(() => {
+    if (phase !== "preview" || nudgedRef.current) return
+    if (typeof window === "undefined") return
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return
+    nudgedRef.current = true
+    let cancelled = false
+    const cleanup = () => {
+      window.removeEventListener("wheel", cancel)
+      window.removeEventListener("touchstart", cancel)
+      window.removeEventListener("keydown", cancel)
+    }
+    function cancel() { cancelled = true; cleanup() }
+    window.addEventListener("wheel", cancel, { passive: true })
+    window.addEventListener("touchstart", cancel, { passive: true })
+    window.addEventListener("keydown", cancel)
+    const t1 = setTimeout(() => { if (!cancelled) window.scrollTo({ top: 220, behavior: "smooth" }) }, 650)
+    const t2 = setTimeout(() => { if (!cancelled) window.scrollTo({ top: 0, behavior: "smooth" }) }, 1850)
+    const t3 = setTimeout(cleanup, 2700)
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); cleanup() }
+  }, [phase])
 
   const unlock = async () => {
     if (!hasPaymentConfig) { setPlaceholder(true); return }
