@@ -245,6 +245,28 @@ img{max-width:100%;display:block}
 .social-btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
 .social-btn svg{width:22px;height:22px;flex-shrink:0}
 
+/* APP : L'application Le Fauve (mise en avant) */
+.appshow{background:var(--bg-cream);color:var(--fg-dark);padding:140px 0 130px}
+.appshow-grid{display:grid;grid-template-columns:0.9fr 1.05fr;gap:72px;align-items:center}
+@media (max-width:860px){.appshow-grid{grid-template-columns:1fr;gap:56px}}
+.appshow-copy .section-label{color:var(--accent-deep)}
+.appshow-copy .section-label::before{background:var(--accent-deep)}
+.appshow h2{font-family:var(--display);font-size:clamp(40px,5vw,64px);line-height:0.98;margin:0 0 24px;font-weight:500;color:var(--fg-dark)}
+.appshow h2 em{font-style:italic;color:var(--accent-deep)}
+.appshow .lead{color:var(--fg-dark-mute);font-size:18px;margin:0 0 36px;max-width:46ch;line-height:1.72}
+.appshow .lead strong{color:var(--fg-dark);font-weight:500}
+.appshow .btn-primary{background:var(--accent-deep);color:var(--bg-cream)}
+.appshow .btn-primary:hover{background:var(--accent)}
+.appshow-reassure{margin-top:18px;font-size:13px;color:var(--fg-dark-mute);letter-spacing:0.04em;display:inline-flex;align-items:center;gap:9px}
+.appshow-reassure::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent-deep);flex-shrink:0}
+/* device mockup (CSS, remplaçable par un vrai screenshot dans .phone-screen) */
+.phone-stage{display:flex;justify-content:center;position:relative}
+.phone-stage::after{content:"";position:absolute;inset:-8% -6% -10% -6%;background:radial-gradient(ellipse at center,rgba(198,138,75,0.20) 0%,rgba(198,138,75,0) 68%);z-index:0;pointer-events:none}
+.phone{position:relative;z-index:1;width:288px;max-width:80vw;aspect-ratio:9/19.2;background:#08080A;border-radius:46px;padding:11px;box-shadow:0 46px 92px rgba(42,30,20,0.44),0 16px 36px rgba(42,30,20,0.30),inset 0 0 0 2px rgba(245,234,215,0.05)}
+.phone-screen{position:relative;height:100%;border-radius:36px;overflow:hidden;background:#0A0A0C;display:flex;flex-direction:column;color:#F5EAD7}
+.phone-island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:84px;height:23px;background:#000;border-radius:14px;z-index:6}
+.phone-shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+@media (max-width:860px){.phone{width:266px}}
 .reveal{opacity:0;transform:translateY(20px);transition:opacity 800ms ease,transform 800ms ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
 </style>
@@ -256,6 +278,7 @@ img{max-width:100%;display:block}
   <div class="nav-links">
     <a href="#piliers">Les piliers</a>
     <a href="#manifeste">Manifeste</a>
+    <a href="#application">L'app</a>
     <a href="#produit">Le carnet</a>
     <a href="#voix">Voix</a>
     <a href="/bilan/" class="nav-cta">Le bilan</a>
@@ -274,6 +297,7 @@ img{max-width:100%;display:block}
     <div class="hero-tone">Brut<span>·</span>Direct<span>·</span>Pacifique</div>
     <div class="hero-cta">
       <a href="/bilan/" class="btn btn-primary">Fais ton bilan <span class="arrow">→</span></a>
+      <a href="https://app.lefauvepacifique.com" class="btn btn-ghost">L'app du Fauve <span class="arrow">→</span></a>
       <a href="/guides" class="btn btn-ghost">Les guides gratuits <span class="arrow">→</span></a>
     </div>
   </div>
@@ -368,6 +392,26 @@ img{max-width:100%;display:block}
       <p>Je ne prescris pas. Je <strong>partage</strong>. Les recettes, les gestes, les trucs que les anciens des Alpes connaissaient pour tenir le coup. Le corps, et la tête.</p>
       <p>Tout ce qui suit est <strong>en complément</strong> du soin médical, jamais à la place. Si tu souffres, consulte. Si tu cherches, lis.</p>
       <div class="manifesto-aphorism">Brut.<br>Direct.<br>Pacifique.</div>
+    </div>
+  </div>
+</section>
+
+<section class="appshow" id="application">
+  <div class="container appshow-grid">
+    <div class="phone-stage">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-island"></div>
+          <img class="phone-shot" src="./assets/app-home-screen.jpg" alt="L'application Le Fauve, écran d'accueil" width="589" height="1280">
+        </div>
+      </div>
+    </div>
+    <div class="appshow-copy">
+      <div class="section-label">Nouveau · l'application</div>
+      <h2>Le Fauve <em>dans ta poche.</em></h2>
+      <p class="lead">Montre-lui ton assiette, il te dit la vérité. Scanne un produit, il démêle la vraie nourriture du marketing. Parle-lui quand tu doutes. <strong>Il se souvient de toi, et il te suit.</strong></p>
+      <a href="https://app.lefauvepacifique.com" class="btn btn-primary">Essayer gratuitement <span class="arrow">→</span></a>
+      <div class="appshow-reassure">Gratuit pour commencer. Sans carte.</div>
     </div>
   </div>
 </section>
@@ -527,7 +571,7 @@ img{max-width:100%;display:block}
 
 <script>
 const io=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}});},{rootMargin:'0px 0px -10% 0px'});
-document.querySelectorAll('.intro,.pillars,.manifesto,.freebie,.product,.voices,.promise,.follow,.cta-block').forEach(el=>{el.classList.add('reveal');io.observe(el);});
+document.querySelectorAll('.intro,.pillars,.manifesto,.appshow,.freebie,.product,.voices,.promise,.follow,.cta-block').forEach(el=>{el.classList.add('reveal');io.observe(el);});
 
 // Note : la capture email des guides gratuits se fait désormais sur la page /guides (email-gate par guide).
 // La homepage ne fait qu'afficher un teaser des guides (cartes -> /guides). Plus de form ici.
