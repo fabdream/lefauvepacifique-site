@@ -33,6 +33,11 @@ const GUIDES: Record<string, { url: string; subject: string; teaser: string }> =
     subject: "Tes fruits propres, comme promis 🐺",
     teaser: "La liste des fruits à laver en priorité, et la méthode simple qui enlève les pesticides. Sans tout acheter bio.",
   },
+  "guide-canicule": {
+    url: "https://lefauvepacifique.com/assets/guide-canicule.pdf",
+    subject: "Tes vrais gestes contre la chaleur, comme promis 🐺",
+    teaser: "Les vrais gestes contre la canicule, ceux qu'on fait à l'envers sans le savoir. Comment rafraîchir ton corps, bien dormir, boire et manger juste. Et protéger les anciens autour de toi.",
+  },
 }
 
 function err(msg: string, status: number) {
