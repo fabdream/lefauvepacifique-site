@@ -542,6 +542,14 @@ function Processing({ orderId }: { orderId: string }) {
             ? "Télécharge-le maintenant, et garde-le. On te l'a aussi envoyé par mail."
             : "Télécharge-le maintenant, et garde-le. (Ton email arrive aussi.)"}
         </div>
+        {/* Pont bilan payant → app (copy Oracle, voix Fauve). Relink déjà actif : même email = bilan rattaché auto. */}
+        <div style={{ marginTop: 26, paddingTop: 22, borderTop: "1px solid var(--line)", textAlign: "left" }}>
+          <div className="pitch" style={{ fontSize: 19, marginBottom: 8 }}>Continue avec le Fauve dans l'app</div>
+          <p className="reassure" style={{ textAlign: "left", fontSize: 14, lineHeight: 1.6, margin: "0 0 16px" }}>
+            Le bilan, c'est juste le point de départ. Dans l'app, le Fauve s'en souvient et t'accompagne au quotidien : montre-lui ton assiette, parle-lui quand ça pèse, suis tes progrès. Avec le même email, ton bilan t'y attend déjà.
+          </p>
+          <a className="btn btn-primary" style={{ width: "100%" }} href="https://app.lefauvepacifique.com" target="_blank" rel="noreferrer">Ouvre l'app →</a>
+        </div>
       </div>
     )
   }
