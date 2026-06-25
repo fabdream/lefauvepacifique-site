@@ -11,7 +11,23 @@
 # Les variables VITE_* (publiques : VITE_SUPABASE_URL / ANON / STRIPE_PUBLISHABLE_KEY / FUNCTIONS_URL)
 # sont à définir dans les ENV VARS du site Netlify (pas ici, pas dans le repo). Valeurs dans bilan/front-env.txt.
 
+# Guides centralisés dans l'app (décision Fabio 25/06 : le site = vitrine → app = hub).
+# La PAGE /guides redirige vers l'app (qui montre tous les guides). force = true pour l'emporter sur
+# le fichier servi. ⚠️ NE PAS toucher /assets/*.pdf : les liens des emails déjà envoyés en dépendent.
+[[redirects]]
+  from = "/guides"
+  to = "https://app.lefauvepacifique.com"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/guides/*"
+  to = "https://app.lefauvepacifique.com"
+  status = 301
+  force = true
+
 # SPA fallback pour le funnel (sans force → les fichiers réels /bilan/assets/* sont servis avant).
+# NB : le redirect /bilan/ → app est TENU jusqu'au bilan natif riche (sinon downgrade UX). Pour l'instant le funnel /bilan reste servi.
 [[redirects]]
   from = "/bilan/*"
   to = "/bilan/index.html"
