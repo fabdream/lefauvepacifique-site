@@ -26,9 +26,11 @@
   status = 301
   force = true
 
-# SPA fallback pour le funnel (sans force → les fichiers réels /bilan/assets/* sont servis avant).
-# NB : le redirect /bilan/ → app est TENU jusqu'au bilan natif riche (sinon downgrade UX). Pour l'instant le funnel /bilan reste servi.
+# Bilan GRATUIT partout → l'app (décision Fabio 25/06 : le 5€ one-time retiré, tout vers l'app).
+# /bilan/* (l'ancien funnel payant) redirige vers le bilan de l'app. force=true pour l'emporter sur le SPA.
+# ⚠️ NE touche PAS /assets/*.pdf (route différente) : les liens des emails déjà envoyés restent servis.
 [[redirects]]
   from = "/bilan/*"
-  to = "/bilan/index.html"
-  status = 200
+  to = "https://app.lefauvepacifique.com/?action=bilan"
+  status = 301
+  force = true
