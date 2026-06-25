@@ -93,10 +93,14 @@ Deno.serve(async (req) => {
       <a href="${guide.url}" style="display:inline-block;background:#8A5A2B;color:#F5EAD7;text-decoration:none;padding:14px 26px;border-radius:4px;font-weight:600;font-size:15px">📄 Télécharger ton guide</a>
     </div>
     <p>Lis-le au calme. Garde cet email, le lien reste valable.</p>
+    <div style="margin-top:26px;padding-top:22px;border-top:1px solid #e5ddcf">
+      <p style="margin:0 0 14px">Ce guide, c'est un début. Dans l'app, le Fauve regarde ton assiette, te répond, et te suit au quotidien. Gratuit pour commencer.</p>
+      <a href="https://app.lefauvepacifique.com" style="display:inline-block;background:#8A5A2B;color:#F5EAD7;text-decoration:none;padding:14px 26px;border-radius:4px;font-weight:600;font-size:15px">🐺 Ouvre l'app, c'est gratuit →</a>
+    </div>
     <p style="margin-top:22px">Le Fauve.</p>
     <p style="font-size:12px;color:#9a9286;margin-top:24px">Le Fauve n'est pas médecin. Ce guide complète un suivi de santé, il ne le remplace pas. · Le Fauve Pacifique · lefauvepacifique.com</p>
   </div>`
-  const text = `${hi}\n\nTu m'as demandé le guide. Le voilà.\n\n${guide.teaser}\n\n📄 Télécharger ton guide : ${guide.url}\n\nLis-le au calme. Garde cet email, le lien reste valable.\n\nLe Fauve.\n\n—\nLe Fauve n'est pas médecin. Ce guide complète un suivi de santé, il ne le remplace pas. · Le Fauve Pacifique · lefauvepacifique.com\n`
+  const text = `${hi}\n\nTu m'as demandé le guide. Le voilà.\n\n${guide.teaser}\n\n📄 Télécharger ton guide : ${guide.url}\n\nLis-le au calme. Garde cet email, le lien reste valable.\n\nCe guide, c'est un début. Dans l'app, le Fauve regarde ton assiette, te répond, et te suit au quotidien. Gratuit pour commencer.\nOuvre l'app : https://app.lefauvepacifique.com\n\nLe Fauve.\n\n—\nLe Fauve n'est pas médecin. Ce guide complète un suivi de santé, il ne le remplace pas. · Le Fauve Pacifique · lefauvepacifique.com\n`
 
   // --- Envoi SMTP (identique à send-bilan-email : base64 lossless pour ne pas casser le lien) ---
   const client = new SMTPClient({
